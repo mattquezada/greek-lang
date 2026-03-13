@@ -142,7 +142,7 @@ export default function VerbSearch() {
               ← Back to results
             </button>
             <div
-              className="rounded-2xl border p-6"
+              className="rounded-2xl border p-4 sm:p-6"
               style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
             >
               <div className="mb-4 flex flex-wrap items-start gap-3">
@@ -167,6 +167,92 @@ export default function VerbSearch() {
                 exampleTranslation={selectedVerb.example_translation}
               />
             </div>
+
+            {/* Perfective Subjunctive section */}
+            {selectedVerb.conjugations.future?.active && (() => {
+              // Future forms are "θα γράψω" — strip "θα " to get bare perfective subjunctive forms
+              const raw = selectedVerb.conjugations.future!.active
+              const strip = (v: string) => v.replace(/^θα\s+/, '')
+              const a = Object.fromEntries(
+                Object.entries(raw).map(([k, v]) => [k, strip(v as string)])
+              ) as typeof raw
+              const PERSONS = [
+                { key: 'sg1', label: 'εγώ', english: 'I' },
+                { key: 'sg2', label: 'εσύ', english: 'you' },
+                { key: 'sg3', label: 'αυτός·η·ό', english: 'he/she/it' },
+                { key: 'pl1', label: 'εμείς', english: 'we' },
+                { key: 'pl2', label: 'εσείς', english: 'you all' },
+                { key: 'pl3', label: 'αυτοί·ές', english: 'they' },
+              ] as const
+              return (
+                <div
+                  className="mt-4 rounded-2xl border p-4 sm:p-6"
+                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
+                >
+                  <h3 className="text-lg font-bold mb-0.5" style={{ color: 'var(--foreground)' }}>
+                    Perfective Subjunctive
+                  </h3>
+                  <p className="text-sm mb-3" style={{ color: 'var(--muted-foreground)' }}>
+                    Used after <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>να</span>,{' '}
+                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>ας</span>,{' '}
+                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>πριν να</span>,{' '}
+                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>για να</span>…
+                  </p>
+                  <div
+                    className="mb-4 rounded-xl border px-4 py-3 text-xs"
+                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
+                  >
+                    The perfective stem (same morphology as the Simple Past) is used <strong style={{ color: 'var(--foreground)' }}>bare — without θα</strong> — after να and similar particles. These are not new forms; they are the aorist active forms in a different grammatical role.
+                  </div>
+
+                  {/* Forms table */}
+                  <div
+                    className="overflow-x-auto rounded-xl border p-4 mb-4"
+                    style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
+                  >
+                    <table className="w-full text-sm">
+                      <thead>
+                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                          <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Person</th>
+                          <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Form (bare)</th>
+                          <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>With να</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {PERSONS.map(({ key, label, english }) => (
+                          <tr key={key} className="border-b last:border-b-0" style={{ borderColor: 'var(--border)' }}>
+                            <td className="py-2.5 pr-4">
+                              <span className="greek-text font-medium" style={{ color: 'var(--foreground)' }}>{label}</span>
+                              <span className="ml-1.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>({english})</span>
+                            </td>
+                            <td className="py-2.5 pr-4 greek-text font-semibold" style={{ color: '#0D5EAF' }}>
+                              {a[key as keyof typeof a] || '—'}
+                            </td>
+                            <td className="py-2.5 greek-text text-sm" style={{ color: 'var(--muted-foreground)' }}>
+                              να {a[key as keyof typeof a] || '—'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Example phrases */}
+                  <div className="flex flex-col gap-2">
+                    {[
+                      { phrase: `Θέλω να ${a.sg1}.`, translation: `I want to ${selectedVerb.english_translation}.` },
+                      { phrase: `Πρέπει να ${a.sg2}.`, translation: `You must ${selectedVerb.english_translation}.` },
+                      { phrase: `Ας ${a.pl1}!`, translation: `Let's ${selectedVerb.english_translation}!` },
+                    ].map(({ phrase, translation }) => (
+                      <div key={phrase} className="rounded-lg border-l-4 pl-3 py-1" style={{ borderColor: '#0D5EAF' }}>
+                        <p className="greek-text font-semibold text-sm" style={{ color: '#0D5EAF' }}>{phrase}</p>
+                        <p className="text-xs italic mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{translation}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
           </div>
         )}
       </div>

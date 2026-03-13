@@ -54,6 +54,19 @@ export function useAlphabetQuiz(letters: AlphabetLetter[]) {
     setIsCorrect(null)
   }, [letters])
 
+  const generateChoices = useCallback(
+    (count = 4): string[] => {
+      if (!currentLetter) return []
+      const correct = currentLetter.letter_name
+      const others = letters
+        .filter((l) => l.letter_name !== correct)
+        .map((l) => l.letter_name)
+      const wrong = shuffle(others).slice(0, count - 1)
+      return shuffle([correct, ...wrong])
+    },
+    [currentLetter, letters]
+  )
+
   const progress = total > 0 ? (currentIndex / total) * 100 : 0
 
   return {
@@ -69,5 +82,6 @@ export function useAlphabetQuiz(letters: AlphabetLetter[]) {
     checkAnswer,
     nextLetter,
     restart,
+    generateChoices,
   }
 }
