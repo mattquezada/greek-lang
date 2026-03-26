@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react'
 
 export default function ThemeToggle() {
   const [isDark, setIsDark] = useState(false)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     const stored = localStorage.getItem('theme')
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
     const dark = stored === 'dark' || (!stored && prefersDark)
     setIsDark(dark)
+    setMounted(true)
     if (dark) {
       document.documentElement.classList.add('dark')
     } else {
@@ -32,10 +34,20 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      aria-label="Toggle dark mode"
-      className="rounded-lg p-2 text-xl transition-colors hover:bg-slate-100 dark:hover:bg-slate-700"
+      role="switch"
+      aria-checked={isDark}
+      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      className="relative inline-flex h-7 w-12 flex-shrink-0 cursor-pointer items-center rounded-full transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+      style={{
+        backgroundColor: isDark ? '#0D5EAF' : '#d1d5db',
+      }}
     >
-      {isDark ? '☀️' : '🌙'}
+      <span
+        className="pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md transform transition-transform duration-200 ease-in-out"
+        style={{
+          transform: mounted && isDark ? 'translateX(22px)' : 'translateX(2px)',
+        }}
+      />
     </button>
   )
 }

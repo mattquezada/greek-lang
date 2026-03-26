@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Adjective, CaseForm } from '@/types/adjective'
-import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   initialAdjectives: Adjective[]
@@ -99,13 +98,9 @@ export default function AdjectiveSearch({ initialAdjectives }: Props) {
       setHasSearched(true)
       setSelected(null)
       try {
-        const supabase = createClient()
-        const { data } = await supabase
-          .from('adjectives')
-          .select('*')
-          .or(`masculine.ilike.%${query.trim()}%,english_translation.ilike.%${query.trim()}%`)
-          .limit(50)
-        setResults(data ?? [])
+        const res = await fetch(`/api/adjectives/lookup?q=${encodeURIComponent(query.trim())}`)
+        const data = await res.json()
+        setResults(data.adjectives ?? [])
       } catch {
         setResults([])
       } finally {

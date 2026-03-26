@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Adverb } from '@/types/adverb'
-import { createClient } from '@/lib/supabase/client'
 
 interface Props {
   initialAdverbs: Adverb[]
@@ -39,14 +38,10 @@ export default function AdverbSearch({ initialAdverbs }: Props) {
       setIsLoading(true)
       setHasSearched(true)
       try {
-        const supabase = createClient()
-        let q = supabase
-          .from('adverbs')
-          .select('*')
-          .or(`greek_text.ilike.%${query.trim()}%,english_translation.ilike.%${query.trim()}%`)
-        if (category !== 'all') q = q.eq('category', category)
-        const { data } = await q.limit(100)
-        setResults(data ?? [])
+        const res = await fetch(`/api/adverbs/lookup?q=${encodeURIComponent(query.trim())}`)
+        const data = await res.json()
+        const adverbs: Adverb[] = data.adverbs ?? []
+        setResults(category === 'all' ? adverbs : adverbs.filter((a) => a.category === category))
       } catch {
         setResults([])
       } finally {

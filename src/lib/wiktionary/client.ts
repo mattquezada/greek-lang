@@ -1,4 +1,5 @@
 import type { ConjugationTable, PersonTable } from '@/types/verb'
+import type { Noun, DeclensionTable } from '@/types/noun'
 
 const WIKTIONARY_API = 'https://en.wiktionary.org/w/api.php'
 
@@ -87,4 +88,96 @@ function extractPersonTable(wikitext: string, tense: string, voice: string): Per
 function extractForm(wikitext: string, key: string): string | null {
   const match = wikitext.match(new RegExp(`\\|${key}\\s*=\\s*([^|\\n}]+)`))
   return match ? match[1].trim().replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1') : null
+}
+
+export async function fetchWiktionaryNoun(greekNoun: string): Promise<Partial<Noun> | null> {
+  try {
+    const params = new URLSearchParams({
+      action: 'parse',
+      page: greekNoun,
+      prop: 'wikitext',
+      format: 'json',
+      origin: '*',
+    })
+
+    const res = await fetch(`${WIKTIONARY_API}?${params}`, {
+      headers: { 'User-Agent': 'EllinikApp/1.0 (language learning app)' },
+      next: { revalidate: 86400 },
+    })
+
+    if (!res.ok) return null
+    const data = await res.json()
+    if (data.error) return null
+
+    const wikitext: string = data.parse?.wikitext?.['*'] ?? ''
+    return parseWikitextNoun(wikitext, greekNoun)
+  } catch {
+    return null
+  }
+}
+
+function parseWikitextNoun(wikitext: string, word: string): Partial<Noun> | null {
+  if (!wikitext.includes('el-noun') && !wikitext.includes('el-decl')) {
+    return null
+  }
+
+  // Extract gender from el-noun template: {{el-noun|m|...}} or |g=m
+  let gender: 'masculine' | 'feminine' | 'neuter' | null = null
+  const genderExplicit = wikitext.match(/\|g\s*=\s*([mfn])/)
+  if (genderExplicit) {
+    const g = genderExplicit[1]
+    gender = g === 'm' ? 'masculine' : g === 'f' ? 'feminine' : 'neuter'
+  } else {
+    // Try positional: {{el-noun|m|...}}
+    const positional = wikitext.match(/\{\{el-noun\|([mfn])[|}]/)
+    if (positional) {
+      const g = positional[1]
+      gender = g === 'm' ? 'masculine' : g === 'f' ? 'feminine' : 'neuter'
+    }
+  }
+
+  const article = gender === 'masculine' ? 'ο' : gender === 'feminine' ? 'η' : gender === 'neuter' ? 'το' : ''
+
+  // Extract the 8 case forms
+  const nomSg = extractNounForm(wikitext, 'nom_sg') || extractNounForm(wikitext, 'nomsg') || word
+  const genSg = extractNounForm(wikitext, 'gen_sg') || extractNounForm(wikitext, 'gensg')
+  const accSg = extractNounForm(wikitext, 'acc_sg') || extractNounForm(wikitext, 'accsg')
+  const vocSg = extractNounForm(wikitext, 'voc_sg') || extractNounForm(wikitext, 'vocsg')
+  const nomPl = extractNounForm(wikitext, 'nom_pl') || extractNounForm(wikitext, 'nompl')
+  const genPl = extractNounForm(wikitext, 'gen_pl') || extractNounForm(wikitext, 'genpl')
+  const accPl = extractNounForm(wikitext, 'acc_pl') || extractNounForm(wikitext, 'accpl')
+  const vocPl = extractNounForm(wikitext, 'voc_pl') || extractNounForm(wikitext, 'vocpl')
+
+  // Count how many case forms we got (excluding nominative sg which defaults to the word)
+  const formCount = [genSg, accSg, vocSg, nomPl, genPl, accPl, vocPl].filter(Boolean).length
+  if (formCount < 3) return null
+
+  const declensions: DeclensionTable = {
+    singular: {
+      nominative: nomSg || word,
+      genitive: genSg || '',
+      accusative: accSg || '',
+      vocative: vocSg || '',
+    },
+    plural: {
+      nominative: nomPl || '',
+      genitive: genPl || '',
+      accusative: accPl || '',
+      vocative: vocPl || '',
+    },
+  }
+
+  return {
+    greek_text: word,
+    english_translation: '',
+    gender: gender ?? 'masculine',
+    article,
+    is_irregular: false,
+    declensions,
+  }
+}
+
+function extractNounForm(wikitext: string, key: string): string | null {
+  const match = wikitext.match(new RegExp(`\\|${key}\\s*=\\s*([^|\\n}]+)`))
+  return match ? match[1].trim().replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1').replace(/<[^>]+>/g, '').trim() : null
 }

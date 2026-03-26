@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { fetchWiktionaryConjugation } from '@/lib/wiktionary/client'
-import { getConjugationFromClaude } from '@/lib/claude/client'
+import { getConjugationFromClaude, getVerbByEnglish } from '@/lib/claude/client'
 import type { ConjugationTable } from '@/types/verb'
 
 export async function GET(request: Request) {
@@ -25,13 +25,24 @@ export async function GET(request: Request) {
     return Response.json({ verbs: exactMatch, source: 'database' })
   }
 
-  // Step 2: If looks like Greek, try tiered lookup for a single verb
   const isGreek = /[\u0370-\u03FF\u1F00-\u1FFF]/.test(query)
+
+  // Step 2: English input with no DB match → ask Claude to find the Greek verb
   if (!isGreek) {
-    return Response.json({ verbs: [], source: 'database' })
+    const verbData = await getVerbByEnglish(query)
+    if (!verbData) {
+      return Response.json({ verbs: [], source: 'none' })
+    }
+
+    const { data: saved } = await supabaseAdmin
+      .from('verbs')
+      .upsert(verbData, { onConflict: 'greek_text', ignoreDuplicates: false })
+      .select()
+
+    return Response.json({ verbs: saved || [verbData], source: 'claude' })
   }
 
-  // Step 3: Try Wiktionary
+  // Step 3: Greek input — try Wiktionary
   let conjugations: ConjugationTable | null = null
   let source = 'wiktionary'
 

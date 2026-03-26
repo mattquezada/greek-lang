@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Noun } from '@/types/noun'
-import { createClient } from '@/lib/supabase/client'
 import NounCard from './NounCard'
 import DeclensionTable from './DeclensionTable'
 
@@ -43,18 +42,10 @@ export default function NounSearch({ initialNouns }: Props) {
       setHasSearched(true)
       setSelectedNoun(null)
       try {
-        const supabase = createClient()
-        let q = supabase
-          .from('nouns')
-          .select('*')
-          .or(`greek_text.ilike.%${query.trim()}%,english_translation.ilike.%${query.trim()}%`)
-
-        if (genderFilter !== 'all') {
-          q = q.eq('gender', genderFilter)
-        }
-
-        const { data } = await q.limit(50)
-        setResults(data ?? [])
+        const res = await fetch(`/api/nouns/lookup?q=${encodeURIComponent(query.trim())}`)
+        const data = await res.json()
+        const nouns: Noun[] = data.nouns ?? []
+        setResults(genderFilter === 'all' ? nouns : nouns.filter((n) => n.gender === genderFilter))
       } catch {
         setResults([])
       } finally {

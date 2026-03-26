@@ -4,7 +4,11 @@ import { useState, useEffect, useRef } from 'react'
 import type { Verb } from '@/types/verb'
 import ConjugationTable from './ConjugationTable'
 
-export default function VerbSearch() {
+interface Props {
+  initialVerbs?: Verb[]
+}
+
+export default function VerbSearch({ initialVerbs = [] }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Verb[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -46,16 +50,27 @@ export default function VerbSearch() {
     }
   }, [query])
 
+  const displayedVerbs = query.trim() ? results : initialVerbs
+
   return (
     <div>
       {/* Search input */}
-      <div className="relative">
+      <div className="relative mb-6">
+        <div
+          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
+          style={{ color: 'var(--muted-foreground)' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="9" cy="9" r="6" />
+            <path d="M15 15l3 3" />
+          </svg>
+        </div>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Greek (e.g. λέω) or English (e.g. say)…"
-          className="w-full rounded-xl border px-5 py-4 text-base outline-none focus:ring-2"
+          className="w-full rounded-xl border px-5 py-4 pl-10 text-base outline-none focus:ring-2"
           style={{
             backgroundColor: 'var(--background)',
             borderColor: 'var(--border)',
@@ -73,13 +88,13 @@ export default function VerbSearch() {
       </div>
 
       {/* Results */}
-      <div className="mt-4">
+      <div>
         {hasSearched && !isLoading && results.length === 0 && (
           <div
             className="rounded-xl border p-8 text-center"
             style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
           >
-            <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
+            <p className="text-base" style={{ color: 'var(--muted-foreground)' }}>
               No verbs found for &ldquo;{query}&rdquo;
             </p>
             <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
@@ -88,45 +103,62 @@ export default function VerbSearch() {
           </div>
         )}
 
-        {results.length > 0 && !selectedVerb && (
+        {!selectedVerb && displayedVerbs.length > 0 && (
           <div className="flex flex-col gap-2">
-            {results.map((verb) => (
+            {displayedVerbs.map((verb) => (
               <button
                 key={verb.id}
                 onClick={() => setSelectedVerb(verb)}
-                className="flex items-center justify-between rounded-xl border px-5 py-4 text-left transition-all hover:shadow-md"
+                className="flex items-center justify-between rounded-xl border px-5 py-4 text-left transition-all hover:shadow-md cursor-pointer"
                 style={{
                   backgroundColor: 'var(--card)',
                   borderColor: 'var(--border)',
                 }}
               >
-                <div>
-                  <span className="greek-text text-lg font-bold" style={{ color: '#0D5EAF' }}>
-                    {verb.greek_text}
-                  </span>
-                  <span className="ml-3 text-base" style={{ color: 'var(--foreground)' }}>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-baseline gap-2">
+                    <span className="greek-text text-lg font-bold" style={{ color: '#0D5EAF' }}>
+                      {verb.greek_text}
+                    </span>
+                    {verb.is_irregular && (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                        style={{ backgroundColor: '#ef4444' }}
+                      >
+                        irregular
+                      </span>
+                    )}
+                    {verb.verb_class && (
+                      <span
+                        className="rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
+                      >
+                        {verb.verb_class}
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-sm" style={{ color: 'var(--foreground)' }}>
                     {verb.english_translation}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {verb.is_irregular && (
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                      style={{ backgroundColor: '#ef4444' }}
-                    >
-                      irregular
-                    </span>
+                  </p>
+                  {verb.aspect_note && (
+                    <p className="mt-0.5 text-xs italic" style={{ color: 'var(--muted-foreground)' }}>
+                      {verb.aspect_note}
+                    </p>
                   )}
-                  {verb.verb_class && (
-                    <span
-                      className="rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-                    >
-                      {verb.verb_class}
-                    </span>
-                  )}
-                  <span style={{ color: 'var(--muted-foreground)' }}>→</span>
                 </div>
+                <svg
+                  width="16" height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="ml-3 flex-shrink-0"
+                  style={{ color: 'var(--muted-foreground)' }}
+                >
+                  <path d="M6 3l5 5-5 5" />
+                </svg>
               </button>
             ))}
           </div>
@@ -136,10 +168,13 @@ export default function VerbSearch() {
           <div>
             <button
               onClick={() => setSelectedVerb(null)}
-              className="mb-4 flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70"
+              className="mb-4 flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
               style={{ color: '#0D5EAF' }}
             >
-              ← Back to results
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10 3L5 8l5 5" />
+              </svg>
+              Back to results
             </button>
             <div
               className="rounded-2xl border p-4 sm:p-6"
@@ -170,7 +205,6 @@ export default function VerbSearch() {
 
             {/* Perfective Subjunctive section */}
             {selectedVerb.conjugations.future?.active && (() => {
-              // Future forms are "θα γράψω" — strip "θα " to get bare perfective subjunctive forms
               const raw = selectedVerb.conjugations.future!.active
               const strip = (v: string) => v.replace(/^θα\s+/, '')
               const a = Object.fromEntries(
@@ -202,10 +236,9 @@ export default function VerbSearch() {
                     className="mb-4 rounded-xl border px-4 py-3 text-xs"
                     style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
                   >
-                    The perfective stem (same morphology as the Simple Past) is used <strong style={{ color: 'var(--foreground)' }}>bare — without θα</strong> — after να and similar particles. These are not new forms; they are the aorist active forms in a different grammatical role.
+                    The perfective stem is used <strong style={{ color: 'var(--foreground)' }}>bare — without θα</strong> — after να and similar particles. These are the aorist active forms in a different grammatical role.
                   </div>
 
-                  {/* Forms table */}
                   <div
                     className="overflow-x-auto rounded-xl border p-4 mb-4"
                     style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
@@ -237,7 +270,6 @@ export default function VerbSearch() {
                     </table>
                   </div>
 
-                  {/* Example phrases */}
                   <div className="flex flex-col gap-2">
                     {[
                       { phrase: `Θέλω να ${a.sg1}.`, translation: `I want to ${selectedVerb.english_translation}.` },
