@@ -200,11 +200,14 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
                     </table>
                   </div>
                   <div className="flex flex-col gap-2">
-                    {[
-                      { phrase: `Θέλω να ${a.sg1}.`, translation: `I want to ${selectedVerb.english_translation}.` },
-                      { phrase: `Πρέπει να ${a.sg2}.`, translation: `You must ${selectedVerb.english_translation}.` },
-                      { phrase: `Ας ${a.pl1}!`, translation: `Let's ${selectedVerb.english_translation}!` },
-                    ].map(({ phrase, translation }) => (
+                    {(() => {
+                      const baseVerb = selectedVerb.english_translation.replace(/^to\s+/i, '')
+                      return [
+                        { phrase: `Θέλω να ${a.sg1}.`, translation: `I want to ${baseVerb}.` },
+                        { phrase: `Πρέπει να ${a.sg2}.`, translation: `You must ${baseVerb}.` },
+                        { phrase: `Ας ${a.pl1}!`, translation: `Let's ${baseVerb}!` },
+                      ]
+                    })().map(({ phrase, translation }) => (
                       <div key={phrase} className="glass rounded-xl pl-4 py-2 border-l-4" style={{ borderLeftColor: '#0D5EAF' }}>
                         <p className="greek-text font-semibold text-sm" style={{ color: '#0D5EAF' }}>{phrase}</p>
                         <p className="text-xs italic mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{translation}</p>

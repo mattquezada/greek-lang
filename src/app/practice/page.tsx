@@ -5,6 +5,18 @@ export const metadata: Metadata = { title: 'Practice | Elliniká' }
 
 const GAMES = [
   {
+    href: '/practice/assess',
+    title: 'Level Assessment',
+    subtitle: 'Εκτίμηση Επιπέδου',
+    description: '7 multiple-choice questions spanning A1 to B2. Find your CEFR level and get personalised practice recommendations.',
+    badge: 'AI-powered',
+    color: '#7c3aed',
+    glow: 'rgba(124,58,237,0.25)',
+    bg: 'rgba(124,58,237,0.12)',
+    icon: '🎯',
+    level: 'All levels',
+  },
+  {
     href: '/practice/think',
     title: 'Σκέψου Ελληνικά',
     subtitle: 'Think in Greek',

@@ -176,6 +176,19 @@ body {
     -webkit-backdrop-filter: blur(20px);
     box-shadow: var(--glass-shadow);
   }
+  /* Opaque navbar glass — used only on the floating pill nav */
+  .glass-navbar {
+    background: rgba(240, 248, 255, 0.90);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(13, 94, 175, 0.18);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.10);
+  }
+  .dark .glass-navbar {
+    background: rgba(8, 14, 28, 0.90);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.50);
+  }
 
   /* 3D card hover effect */
   .card-3d {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createServiceClient } from '@/lib/supabase/server'
 
 const quickLinks = [
   {
@@ -118,12 +118,38 @@ const quickLinks = [
   },
 ]
 
-const stats = [
-  { value: '1,000+', label: 'Words in Database', color: '#0D5EAF', glow: 'rgba(13,94,175,0.3)', icon: '📚' },
-  { value: '0', label: 'Day Streak', color: '#f59e0b', glow: 'rgba(245,158,11,0.3)', icon: '🔥' },
-  { value: '0', label: 'Practice Sessions', color: '#10b981', glow: 'rgba(16,185,129,0.3)', icon: '⚡' },
-  { value: 'A1', label: 'Current Level', color: '#7c3aed', glow: 'rgba(124,58,237,0.3)', icon: '🎯' },
-]
+const LEVEL_LABELS: Record<string, string> = {
+  unset: '—',
+  A1: 'A1', A2: 'A2', B1: 'B1', B2: 'B2', C1: 'C1',
+}
+
+const LEVEL_RECOMMENDATIONS: Record<string, { label: string; href: string }[]> = {
+  A1: [
+    { label: 'Learn the alphabet', href: '/alphabet' },
+    { label: 'Practice greetings', href: '/practice/think' },
+    { label: 'Basic nouns', href: '/nouns' },
+  ],
+  A2: [
+    { label: 'Common verbs', href: '/verbs' },
+    { label: 'Think in Greek drill', href: '/practice/think' },
+    { label: 'Everyday idioms', href: '/idioms' },
+  ],
+  B1: [
+    { label: 'Verb aspects', href: '/verbs' },
+    { label: 'Verb drill', href: '/practice/drill' },
+    { label: 'Adjective forms', href: '/adjectives' },
+  ],
+  B2: [
+    { label: 'Advanced grammar', href: '/grammar' },
+    { label: 'Idiom quiz', href: '/practice/idioms' },
+    { label: 'Chat with Eleni', href: '/chat' },
+  ],
+  C1: [
+    { label: 'Nuanced grammar', href: '/grammar' },
+    { label: 'Translate texts', href: '/translate' },
+    { label: 'Free conversation', href: '/chat' },
+  ],
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -134,6 +160,53 @@ export default async function DashboardPage() {
   }
 
   const username = user.email?.split('@')[0] ?? 'there'
+
+  // Fetch and update user progress (streak, level, sessions)
+  const admin = createServiceClient()
+  const { data: existing } = await admin
+    .from('user_progress')
+    .select('*')
+    .eq('user_id', user.id)
+    .single()
+
+  const today = new Date().toISOString().split('T')[0]
+  let currentStreak = existing?.streak_days ?? 0
+
+  if (!existing) {
+    await admin.from('user_progress').insert({
+      user_id: user.id,
+      streak_days: 1,
+      longest_streak: 1,
+      last_active: new Date().toISOString(),
+      level: 'unset',
+      practice_sessions: 0,
+    })
+    currentStreak = 1
+  } else {
+    const lastDate = existing.last_active
+      ? new Date(existing.last_active).toISOString().split('T')[0]
+      : null
+
+    if (lastDate !== today) {
+      const yesterday = new Date()
+      yesterday.setDate(yesterday.getDate() - 1)
+      const yesterdayStr = yesterday.toISOString().split('T')[0]
+      currentStreak = lastDate === yesterdayStr ? (existing.streak_days ?? 0) + 1 : 1
+      const newLongest = Math.max(currentStreak, existing.longest_streak ?? 0)
+      await admin.from('user_progress').update({
+        streak_days: currentStreak,
+        longest_streak: newLongest,
+        last_active: new Date().toISOString(),
+      }).eq('user_id', user.id)
+    }
+  }
+
+  const progress = existing
+  const streak = currentStreak
+  const sessions = progress?.practice_sessions ?? 0
+  const level = (progress?.level ?? 'unset') as string
+  const levelLabel = LEVEL_LABELS[level] ?? '—'
+  const recommendations = LEVEL_RECOMMENDATIONS[level] ?? []
 
   return (
     <main className="min-h-dvh bg-mesh pb-20">
@@ -150,18 +223,57 @@ export default async function DashboardPage() {
         </div>
 
         {/* Stats row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10 perspective animate-fade-up delay-100">
-          {stats.map((stat) => (
-            <div
-              key={stat.label}
-              className="glass rounded-2xl p-5 card-3d text-center"
-            >
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6 perspective animate-fade-up delay-100">
+          {[
+            { value: '1,000+', label: 'Words in Database', color: '#0D5EAF', icon: '📚' },
+            { value: String(streak), label: 'Day Streak', color: '#f59e0b', icon: '🔥' },
+            { value: String(sessions), label: 'Practice Sessions', color: '#10b981', icon: '⚡' },
+            { value: levelLabel, label: 'Current Level', color: '#7c3aed', icon: '🎯' },
+          ].map((stat) => (
+            <div key={stat.label} className="glass rounded-2xl p-5 card-3d text-center">
               <div className="text-2xl mb-1">{stat.icon}</div>
               <div className="text-2xl font-bold mb-0.5" style={{ color: stat.color }}>{stat.value}</div>
               <div className="text-xs" style={{ color: 'var(--muted-foreground)' }}>{stat.label}</div>
             </div>
           ))}
         </div>
+
+        {/* Level assessment CTA or recommendations */}
+        {level === 'unset' ? (
+          <div className="glass rounded-2xl p-5 mb-8 flex items-center gap-4 animate-fade-up delay-100" style={{ borderLeft: '3px solid #7c3aed' }}>
+            <div className="text-3xl">🎯</div>
+            <div className="flex-1">
+              <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Find your Greek level</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--muted-foreground)' }}>Take a 7-question assessment to get personalised practice recommendations.</p>
+            </div>
+            <Link
+              href="/practice/assess"
+              className="rounded-xl px-4 py-2 text-xs font-semibold text-white flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, #7c3aed, #a855f7)' }}
+            >
+              Take test →
+            </Link>
+          </div>
+        ) : recommendations.length > 0 ? (
+          <div className="glass rounded-2xl p-5 mb-8 animate-fade-up delay-100">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold" style={{ color: 'var(--foreground)' }}>Recommended for {levelLabel}</p>
+              <Link href="/practice/assess" className="text-xs hover:opacity-70" style={{ color: 'var(--muted-foreground)' }}>Retake test</Link>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {recommendations.map((r) => (
+                <Link
+                  key={r.href}
+                  href={r.href}
+                  className="glass rounded-full px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-80"
+                  style={{ color: '#7c3aed' }}
+                >
+                  {r.label} →
+                </Link>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {/* Quick access */}
         <div className="mb-10">

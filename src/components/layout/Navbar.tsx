@@ -163,7 +163,7 @@ export default function Navbar() {
     <>
       {/* Floating pill navbar */}
       <nav
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass rounded-full h-[52px] flex items-center gap-1 px-3"
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass-navbar rounded-full h-[52px] flex items-center gap-1 px-3"
         style={{ maxWidth: 'calc(100vw - 32px)', minWidth: 'min(680px, calc(100vw - 32px))' }}
       >
         {/* Logo */}
@@ -215,7 +215,7 @@ export default function Navbar() {
           {/* Mobile hamburger */}
           <button
             className="flex h-9 w-9 items-center justify-center rounded-full transition-all hover:opacity-70 md:hidden"
-            onClick={() => setMenuOpen((v) => !v)}
+            onClick={() => { setMenuOpen((v) => { if (v) setMobileVocabOpen(false); return !v }) }}
             aria-label="Toggle menu"
             style={{ color: 'var(--foreground)', background: 'var(--glass-bg)' }}
           >
@@ -261,7 +261,7 @@ export default function Navbar() {
               <ChevronIcon open={mobileVocabOpen} />
             </button>
             {mobileVocabOpen && (
-              <div className="glass rounded-2xl overflow-hidden">
+              <div className="glass rounded-2xl">
                 {vocabLinks.map((link) => (
                   <Link
                     key={link.href}
