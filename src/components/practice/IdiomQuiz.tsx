@@ -28,11 +28,7 @@ function buildChallenge(idioms: Idiom[]): Challenge | null {
   const idiom = shuffled[0]
   const wrongPool = shuffled.slice(1, 4).map((i) => i.real_meaning)
   const choices = shuffle([idiom.real_meaning, ...wrongPool])
-  return {
-    idiom,
-    choices,
-    correctIndex: choices.indexOf(idiom.real_meaning),
-  }
+  return { idiom, choices, correctIndex: choices.indexOf(idiom.real_meaning) }
 }
 
 export default function IdiomQuiz({ idioms }: Props) {
@@ -54,18 +50,15 @@ export default function IdiomQuiz({ idioms }: Props) {
     if (selected !== null) return
     setSelected(index)
     const correct = challenge && index === challenge.correctIndex
-    setScore((s) => ({
-      correct: s.correct + (correct ? 1 : 0),
-      total: s.total + 1,
-    }))
+    setScore((s) => ({ correct: s.correct + (correct ? 1 : 0), total: s.total + 1 }))
   }
 
   if (!started) {
     return (
-      <div className="flex flex-col items-center gap-6 py-10 text-center">
-        <div className="text-5xl">🎯</div>
+      <div className="glass rounded-3xl p-10 flex flex-col items-center gap-6 text-center card-3d perspective">
+        <div className="text-6xl animate-float-medium">🎯</div>
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--foreground)' }}>Idiom Quiz</h2>
+          <h2 className="text-2xl font-bold mb-2 text-gradient-blue">Idiom Quiz</h2>
           <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             {idioms.length} idioms loaded · 4 choices per round
           </p>
@@ -75,8 +68,8 @@ export default function IdiomQuiz({ idioms }: Props) {
         </div>
         <button
           onClick={() => setStarted(true)}
-          className="rounded-xl px-8 py-3 text-sm font-semibold text-white"
-          style={{ backgroundColor: '#059669' }}
+          className="rounded-2xl px-10 py-3.5 text-sm font-semibold text-white glow-emerald transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}
         >
           Start Quiz
         </button>
@@ -95,11 +88,11 @@ export default function IdiomQuiz({ idioms }: Props) {
   const answered = selected !== null
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* Score */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-3 text-sm">
-          <span style={{ color: '#059669' }}>{score.correct} correct</span>
+    <div className="flex flex-col gap-4">
+      {/* Score bar */}
+      <div className="glass rounded-2xl px-5 py-3 flex items-center justify-between">
+        <div className="flex gap-4 text-sm">
+          <span className="font-semibold" style={{ color: '#10b981' }}>{score.correct} correct</span>
           <span style={{ color: 'var(--muted-foreground)' }}>{score.total - score.correct} missed</span>
         </div>
         <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
@@ -107,11 +100,8 @@ export default function IdiomQuiz({ idioms }: Props) {
         </span>
       </div>
 
-      {/* Card */}
-      <div
-        className="rounded-2xl border p-6"
-        style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-      >
+      {/* Challenge card */}
+      <div className="glass rounded-3xl p-6 animate-fade-up">
         {/* Idiom */}
         <p className="greek-text text-2xl font-bold mb-1" style={{ color: '#059669' }}>
           {challenge.idiom.greek_text}
@@ -130,18 +120,25 @@ export default function IdiomQuiz({ idioms }: Props) {
         {/* Choices */}
         <div className="flex flex-col gap-2 mb-4">
           {challenge.choices.map((choice, i) => {
-            let bg = 'var(--background)'
-            let border = 'var(--border)'
-            let color = 'var(--foreground)'
+            const isCorrectChoice = i === challenge.correctIndex
+            const isSelectedChoice = i === selected
+
+            let borderColor = 'var(--glass-border)'
+            let bgColor = 'var(--glass-bg)'
+            let textColor = 'var(--foreground)'
+            let shadowStyle = 'none'
 
             if (answered) {
-              if (i === challenge.correctIndex) {
-                bg = 'rgba(5,150,105,0.08)'; border = '#059669'; color = '#059669'
-              } else if (i === selected) {
-                bg = 'rgba(239,68,68,0.08)'; border = '#ef4444'; color = '#ef4444'
+              if (isCorrectChoice) {
+                borderColor = 'rgba(16,185,129,0.5)'
+                bgColor = 'rgba(16,185,129,0.08)'
+                textColor = '#10b981'
+                shadowStyle = '0 0 16px rgba(16,185,129,0.2)'
+              } else if (isSelectedChoice) {
+                borderColor = 'rgba(239,68,68,0.4)'
+                bgColor = 'rgba(239,68,68,0.06)'
+                textColor = '#ef4444'
               }
-            } else if (selected === i) {
-              bg = 'rgba(13,94,175,0.08)'; border = '#0D5EAF'
             }
 
             return (
@@ -149,10 +146,16 @@ export default function IdiomQuiz({ idioms }: Props) {
                 key={i}
                 onClick={() => pick(i)}
                 disabled={answered}
-                className="rounded-xl border px-4 py-3 text-left text-sm transition-all"
-                style={{ backgroundColor: bg, borderColor: border, color }}
+                className="rounded-2xl px-4 py-3 text-left text-sm transition-all"
+                style={{
+                  background: bgColor,
+                  border: `1px solid ${borderColor}`,
+                  backdropFilter: 'blur(8px)',
+                  color: textColor,
+                  boxShadow: shadowStyle,
+                }}
               >
-                <span className="font-medium mr-2" style={{ color: 'var(--muted-foreground)' }}>
+                <span className="font-semibold mr-2 text-xs" style={{ color: 'var(--muted-foreground)' }}>
                   {String.fromCharCode(65 + i)}.
                 </span>
                 {choice}
@@ -161,23 +164,20 @@ export default function IdiomQuiz({ idioms }: Props) {
           })}
         </div>
 
-        {/* Explanation after answer */}
+        {/* After answer */}
         {answered && (
           <div className="flex flex-col gap-3">
             {challenge.idiom.example_sentence && (
-              <div
-                className="rounded-xl border p-3"
-                style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)' }}
-              >
-                <p className="greek-text text-sm font-semibold mb-0.5" style={{ color: '#059669' }}>
+              <div className="glass-strong rounded-2xl p-4" style={{ borderLeft: '3px solid #059669' }}>
+                <p className="greek-text text-sm font-semibold" style={{ color: '#059669' }}>
                   {challenge.idiom.example_sentence}
                 </p>
               </div>
             )}
             <button
               onClick={nextChallenge}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-white"
-              style={{ backgroundColor: '#059669' }}
+              className="w-full rounded-2xl py-3 text-sm font-semibold text-white glow-emerald transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}
             >
               Next →
             </button>

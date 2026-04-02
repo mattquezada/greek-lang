@@ -47,22 +47,22 @@ export default function TranslatorClient() {
       {/* Direction toggle */}
       <div className="flex items-center gap-3">
         <span
-          className="rounded-full px-4 py-2 text-sm font-semibold"
-          style={{ backgroundColor: '#0D5EAF', color: '#fff' }}
+          className="rounded-full px-4 py-2 text-sm font-semibold text-white"
+          style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', boxShadow: '0 0 12px rgba(13,94,175,0.35)' }}
         >
           {srcLabel}
         </span>
         <button
           onClick={handleSwap}
           title="Swap languages"
-          className="flex h-9 w-9 items-center justify-center rounded-full border transition-all hover:shadow-md"
-          style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
+          className="glass flex h-9 w-9 items-center justify-center rounded-full transition-all"
+          style={{ color: 'var(--foreground)' }}
         >
           ⇄
         </button>
         <span
-          className="rounded-full px-4 py-2 text-sm font-semibold"
-          style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
+          className="glass rounded-full px-4 py-2 text-sm font-semibold"
+          style={{ color: 'var(--muted-foreground)' }}
         >
           {dstLabel}
         </span>
@@ -83,12 +83,7 @@ export default function TranslatorClient() {
             }}
             placeholder={direction === 'el-to-en' ? 'Πληκτρολογήστε ελληνικό κείμενο…' : 'Type English text…'}
             rows={8}
-            className={`w-full resize-none rounded-xl border px-4 py-3 text-base outline-none focus:ring-2 ${direction === 'el-to-en' ? 'greek-text' : ''}`}
-            style={{
-              backgroundColor: 'var(--background)',
-              borderColor: 'var(--border)',
-              color: 'var(--foreground)',
-            }}
+            className={`input-glass w-full resize-none rounded-xl px-4 py-3 text-base ${direction === 'el-to-en' ? 'greek-text' : ''}`}
           />
         </div>
 
@@ -98,12 +93,8 @@ export default function TranslatorClient() {
             {dstLabel}
           </label>
           <div
-            className={`relative w-full rounded-xl border px-4 py-3 text-base min-h-[13rem] ${direction === 'en-to-el' ? 'greek-text' : ''}`}
-            style={{
-              backgroundColor: 'var(--card)',
-              borderColor: 'var(--border)',
-              color: output ? 'var(--foreground)' : 'var(--muted-foreground)',
-            }}
+            className={`glass-strong relative w-full rounded-xl px-4 py-3 text-base min-h-[13rem] ${direction === 'en-to-el' ? 'greek-text' : ''}`}
+            style={{ color: output ? 'var(--foreground)' : 'var(--muted-foreground)' }}
           >
             {isLoading ? (
               <div className="flex items-center gap-2">
@@ -126,8 +117,8 @@ export default function TranslatorClient() {
         <button
           onClick={handleTranslate}
           disabled={!input.trim() || isLoading}
-          className="rounded-xl px-8 py-3 text-base font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          style={{ backgroundColor: '#0D5EAF' }}
+          className="glow-blue rounded-xl px-8 py-3 text-base font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
         >
           {isLoading ? 'Translating…' : 'Translate'}
         </button>

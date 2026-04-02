@@ -2,8 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useRef, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import ThemeToggle from './ThemeToggle'
+import { useRouter, usePathname } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
 const vocabLinks = [
@@ -20,48 +19,28 @@ const vocabLinks = [
   { href: '/interjections', label: 'Interjections' },
 ]
 
+const mainLinks = [
+  { href: '/alphabet', label: 'Alphabet' },
+  { href: '/practice', label: 'Practice' },
+  { href: '/idioms', label: 'Idioms' },
+  { href: '/grammar', label: 'Grammar' },
+  { href: '/translate', label: 'Translator' },
+  { href: '/chat', label: 'Chat' },
+]
+
 function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg
-      width="14"
-      height="14"
-      viewBox="0 0 14 14"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      style={{
-        transition: 'transform 200ms ease',
-        transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-        opacity: 0.6,
-      }}
+      width="12" height="12" viewBox="0 0 12 12" fill="none"
+      stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"
+      style={{ transition: 'transform 200ms ease', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}
     >
-      <path d="M2.5 5l4.5 4 4.5-4" />
+      <path d="M2 4l4 4 4-4" />
     </svg>
   )
 }
 
-function HamburgerIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-      <line x1="3" y1="6" x2="17" y2="6" />
-      <line x1="3" y1="10" x2="17" y2="10" />
-      <line x1="3" y1="14" x2="17" y2="14" />
-    </svg>
-  )
-}
-
-function CloseIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
-      <line x1="4" y1="4" x2="16" y2="16" />
-      <line x1="16" y1="4" x2="4" y2="16" />
-    </svg>
-  )
-}
-
-function Dropdown({ label, links, onNavigate }: { label: string; links: { href: string; label: string }[]; onNavigate?: () => void }) {
+function VocabDropdown({ onNavigate }: { onNavigate?: () => void }) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
 
@@ -77,27 +56,20 @@ function Dropdown({ label, links, onNavigate }: { label: string; links: { href: 
     <div ref={ref} className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 text-sm font-medium transition-opacity hover:opacity-70"
+        className="flex items-center gap-1 rounded-full px-3 py-1.5 text-sm font-medium transition-all hover:opacity-80"
         style={{ color: 'var(--foreground)' }}
       >
-        {label}
+        Vocabulary
         <ChevronIcon open={open} />
       </button>
       {open && (
-        <div
-          className="absolute top-full left-0 mt-2 min-w-[168px] rounded-2xl border py-2 shadow-xl z-50"
-          style={{
-            backgroundColor: 'var(--card)',
-            borderColor: 'var(--border)',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-          }}
-        >
-          {links.map((link) => (
+        <div className="glass absolute top-full left-1/2 -translate-x-1/2 mt-3 min-w-[180px] rounded-2xl py-2 z-50">
+          {vocabLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => { setOpen(false); onNavigate?.() }}
-              className="block px-4 py-2 text-sm font-medium transition-colors hover:opacity-70"
+              className="block px-4 py-2 text-sm font-medium transition-opacity hover:opacity-70"
               style={{ color: 'var(--foreground)' }}
             >
               {link.label}
@@ -109,12 +81,63 @@ function Dropdown({ label, links, onNavigate }: { label: string; links: { href: 
   )
 }
 
+function UserMenu({ email, onSignOut }: { email: string; onSignOut: () => void }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const initials = email.slice(0, 2).toUpperCase()
+
+  useEffect(() => {
+    function handle(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handle)
+    return () => document.removeEventListener('mousedown', handle)
+  }, [])
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-white glow-blue"
+        style={{ background: 'linear-gradient(135deg, #0D5EAF, #7c3aed)' }}
+        aria-label="User menu"
+      >
+        {initials}
+      </button>
+      {open && (
+        <div className="glass absolute top-full right-0 mt-3 min-w-[180px] rounded-2xl py-2 z-50">
+          <div className="px-4 py-2 border-b" style={{ borderColor: 'var(--glass-border)' }}>
+            <p className="text-xs truncate" style={{ color: 'var(--muted-foreground)' }}>{email}</p>
+          </div>
+          <Link
+            href="/settings"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2 text-sm font-medium transition-opacity hover:opacity-70"
+            style={{ color: 'var(--foreground)' }}
+          >
+            Settings
+          </Link>
+          <button
+            onClick={() => { setOpen(false); onSignOut() }}
+            className="block w-full text-left px-4 py-2 text-sm font-medium transition-opacity hover:opacity-70"
+            style={{ color: '#ef4444' }}
+          >
+            Sign out
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Navbar() {
   const router = useRouter()
+  const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [mobileVocabOpen, setMobileVocabOpen] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
 
+  // All hooks must be called before any early returns
   useEffect(() => {
     const supabase = createClient()
     supabase.auth.getUser().then(({ data }) => {
@@ -126,6 +149,9 @@ export default function Navbar() {
     return () => listener.subscription.unsubscribe()
   }, [])
 
+  // Hide navbar on landing page — it has its own header
+  if (pathname === '/') return null
+
   const handleSignOut = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
@@ -134,135 +160,115 @@ export default function Navbar() {
   }
 
   return (
-    <nav
-      className="fixed top-0 left-0 right-0 z-50 border-b"
-      style={{
-        backgroundColor: 'var(--background)',
-        borderColor: 'var(--border)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-      }}
-    >
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+    <>
+      {/* Floating pill navbar */}
+      <nav
+        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 glass rounded-full h-[52px] flex items-center gap-1 px-3"
+        style={{ maxWidth: 'calc(100vw - 32px)', minWidth: 'min(680px, calc(100vw - 32px))' }}
+      >
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 no-underline flex-shrink-0">
-          <span className="text-2xl font-bold leading-none" style={{ color: '#0D5EAF' }}>
-            Ω
-          </span>
-          <span className="text-base font-semibold" style={{ color: 'var(--foreground)' }}>
+        <Link href="/dashboard" className="flex items-center gap-1.5 no-underline flex-shrink-0 pr-2">
+          <span className="text-xl font-bold leading-none text-gradient-blue">Ω</span>
+          <span className="text-sm font-semibold hidden sm:block" style={{ color: 'var(--foreground)' }}>
             Elliniká
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden items-center gap-5 md:flex">
-          <Link href="/alphabet" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Alphabet
-          </Link>
-          <Dropdown label="Vocabulary" links={vocabLinks} />
-          <Link href="/practice" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Practice
-          </Link>
-          <Link href="/idioms" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Idioms
-          </Link>
-          <Link href="/grammar" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Grammar
-          </Link>
-          <Link href="/translate" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Translator
-          </Link>
-          <Link href="/chat" className="text-sm font-medium transition-opacity hover:opacity-70" style={{ color: 'var(--foreground)' }}>
-            Chat
-          </Link>
+        {/* Separator */}
+        <div className="hidden md:block h-5 w-px mx-1" style={{ background: 'var(--glass-border)' }} />
+
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-0.5 flex-1">
+          {mainLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="rounded-full px-3 py-1.5 text-sm font-medium transition-all hover:opacity-80"
+              style={{
+                color: 'var(--foreground)',
+                background: pathname === link.href ? 'var(--glass-bg-hover)' : undefined,
+                fontWeight: pathname === link.href ? 600 : undefined,
+              }}
+            >
+              {link.label}
+            </Link>
+          ))}
+          <VocabDropdown />
         </div>
 
         {/* Right side */}
-        <div className="flex items-center gap-3">
-          {/* Desktop: auth + settings + theme */}
-          <div className="hidden md:flex items-center gap-3">
+        <div className="flex items-center gap-2 ml-auto">
+          <div className="hidden md:flex items-center gap-2">
             {userEmail ? (
-              <>
-                <span className="max-w-[120px] truncate text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                  {userEmail}
-                </span>
-                <button
-                  onClick={handleSignOut}
-                  className="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-70"
-                  style={{ backgroundColor: 'var(--muted)', color: 'var(--foreground)' }}
-                >
-                  Sign out
-                </button>
-              </>
+              <UserMenu email={userEmail} onSignOut={handleSignOut} />
             ) : (
               <Link
-                href="/auth/login"
-                className="rounded-lg px-3 py-1.5 text-xs font-medium transition-opacity hover:opacity-70"
-                style={{ backgroundColor: 'var(--muted)', color: 'var(--foreground)' }}
+                href="/"
+                className="rounded-full px-4 py-1.5 text-xs font-semibold text-white glow-blue transition-opacity hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
               >
                 Sign in
               </Link>
             )}
-            <Link
-              href="/settings"
-              className="rounded-lg p-1.5 transition-opacity hover:opacity-70"
-              aria-label="Settings"
-              style={{ color: 'var(--muted-foreground)' }}
-            >
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="10" cy="10" r="3" />
-                <path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.22 4.22l1.06 1.06M14.72 14.72l1.06 1.06M4.22 15.78l1.06-1.06M14.72 5.28l1.06-1.06" />
-              </svg>
-            </Link>
-            <ThemeToggle />
           </div>
 
           {/* Mobile hamburger */}
           <button
-            className="flex h-9 w-9 items-center justify-center rounded-xl transition-colors md:hidden"
+            className="flex h-9 w-9 items-center justify-center rounded-full transition-all hover:opacity-70 md:hidden"
             onClick={() => setMenuOpen((v) => !v)}
             aria-label="Toggle menu"
-            style={{ color: 'var(--foreground)' }}
+            style={{ color: 'var(--foreground)', background: 'var(--glass-bg)' }}
           >
-            {menuOpen ? <CloseIcon /> : <HamburgerIcon />}
+            {menuOpen ? (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                <line x1="3" y1="3" x2="13" y2="13" /><line x1="13" y1="3" x2="3" y2="13" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round">
+                <line x1="2" y1="5" x2="14" y2="5" /><line x1="2" y1="8" x2="14" y2="8" /><line x1="2" y1="11" x2="14" y2="11" />
+              </svg>
+            )}
           </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile menu */}
+      {/* Mobile full-screen menu */}
       {menuOpen && (
-        <div
-          className="border-t md:hidden"
-          style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
-        >
-          <div className="flex flex-col px-4 py-3 gap-0.5">
-            <Link
-              href="/alphabet"
-              onClick={() => setMenuOpen(false)}
-              className="rounded-xl px-3 py-3 text-sm font-medium transition-colors"
-              style={{ color: 'var(--foreground)' }}
-            >
-              Alphabet
-            </Link>
+        <div className="fixed inset-0 z-40 md:hidden bg-mesh-dark" style={{ paddingTop: '80px' }}>
+          <div className="flex flex-col px-5 py-4 gap-2 max-h-full overflow-y-auto">
+            {mainLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMenuOpen(false)}
+                className="glass rounded-2xl px-5 py-4 text-base font-medium transition-opacity hover:opacity-80"
+                style={{
+                  color: 'var(--foreground)',
+                  background: pathname === link.href ? 'var(--glass-bg-hover)' : undefined,
+                }}
+              >
+                {link.label}
+              </Link>
+            ))}
 
             {/* Vocabulary group */}
             <button
               onClick={() => setMobileVocabOpen((v) => !v)}
-              className="flex items-center justify-between rounded-xl px-3 py-3 text-sm font-medium text-left"
+              className="glass rounded-2xl px-5 py-4 text-base font-medium flex items-center justify-between text-left"
               style={{ color: 'var(--foreground)' }}
             >
               <span>Vocabulary</span>
               <ChevronIcon open={mobileVocabOpen} />
             </button>
             {mobileVocabOpen && (
-              <div className="ml-3 flex flex-col gap-0.5 pb-1">
+              <div className="glass rounded-2xl overflow-hidden">
                 {vocabLinks.map((link) => (
                   <Link
                     key={link.href}
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="rounded-xl px-3 py-2.5 text-sm"
-                    style={{ color: 'var(--muted-foreground)' }}
+                    className="block px-5 py-3 text-sm font-medium transition-opacity hover:opacity-70 border-b last:border-0"
+                    style={{ color: 'var(--foreground)', borderColor: 'var(--glass-border)' }}
                   >
                     {link.label}
                   </Link>
@@ -270,68 +276,30 @@ export default function Navbar() {
               </div>
             )}
 
-            <Link href="/practice" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Practice
-            </Link>
-            <Link href="/idioms" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Idioms
-            </Link>
-            <Link href="/grammar" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Grammar
-            </Link>
-            <Link href="/translate" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Translator
-            </Link>
-            <Link href="/chat" onClick={() => setMenuOpen(false)} className="rounded-xl px-3 py-3 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Chat
-            </Link>
-
-            {/* Auth row */}
-            {userEmail ? (
-              <div
-                className="mt-1 flex items-center justify-between rounded-xl border px-3 py-3"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}
-              >
-                <span className="max-w-[180px] truncate text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                  {userEmail}
-                </span>
-                <button
-                  onClick={handleSignOut}
-                  className="text-xs font-medium"
-                  style={{ color: '#ef4444' }}
-                >
-                  Sign out
-                </button>
-              </div>
-            ) : (
-              <Link
-                href="/auth/login"
-                onClick={() => setMenuOpen(false)}
-                className="rounded-xl px-3 py-3 text-sm font-medium mt-1"
-                style={{ color: '#0D5EAF' }}
-              >
-                Sign in
-              </Link>
-            )}
-
-            {/* Settings & theme row */}
-            <div
-              className="mt-1 flex items-center justify-between rounded-xl border px-3 py-3"
-              style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}
-            >
-              <Link
-                href="/settings"
-                onClick={() => setMenuOpen(false)}
-                className="text-sm font-medium"
-                style={{ color: 'var(--foreground)' }}
-              >
+            {/* Bottom row */}
+            <div className="mt-2 pt-3 flex flex-col gap-2" style={{ borderTop: '1px solid var(--glass-border)' }}>
+              <Link href="/settings" onClick={() => setMenuOpen(false)} className="glass rounded-2xl px-5 py-4 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
                 Settings
               </Link>
-              <ThemeToggle />
+              {userEmail ? (
+                <div className="glass rounded-2xl px-5 py-3 flex items-center justify-between">
+                  <span className="text-xs truncate max-w-[180px]" style={{ color: 'var(--muted-foreground)' }}>{userEmail}</span>
+                  <button onClick={handleSignOut} className="text-sm font-medium" style={{ color: '#ef4444' }}>Sign out</button>
+                </div>
+              ) : (
+                <Link
+                  href="/"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-2xl px-5 py-4 text-sm font-semibold text-white text-center glow-blue"
+                  style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
+                >
+                  Sign in
+                </Link>
+              )}
             </div>
           </div>
         </div>
       )}
-    </nav>
+    </>
   )
 }

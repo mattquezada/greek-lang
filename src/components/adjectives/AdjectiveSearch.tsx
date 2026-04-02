@@ -121,8 +121,7 @@ export default function AdjectiveSearch({ initialAdjectives }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Greek (e.g. καλός) or English (e.g. good)…"
-          className="w-full rounded-xl border px-5 py-4 text-base outline-none focus:ring-2"
-          style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          className="input-glass w-full rounded-2xl px-5 py-4 text-base"
         />
         {isLoading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -133,35 +132,34 @@ export default function AdjectiveSearch({ initialAdjectives }: Props) {
 
       {/* Detail view */}
       {selected ? (
-        <div>
+        <div className="animate-fade-up">
           <button
             onClick={() => setSelected(null)}
-            className="mb-4 text-sm font-medium transition-opacity hover:opacity-70"
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: '#0D5EAF' }}
           >
-            ← Back to results
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 3L5 8l5 5" />
+            </svg>
+            Back to results
           </button>
-          <div className="rounded-2xl border p-6" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+          <div className="glass rounded-3xl p-5 sm:p-6">
             <div className="mb-4 flex flex-wrap items-baseline gap-3">
               <span className="greek-text text-3xl font-bold" style={{ color: '#0D5EAF' }}>{selected.masculine}</span>
               <span className="greek-text text-2xl" style={{ color: 'var(--muted-foreground)' }}>/ {selected.feminine} / {selected.neuter}</span>
               {selected.is_irregular && (
-                <span className="rounded-full px-2 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>
-                  irregular
-                </span>
+                <span className="rounded-full px-2 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>irregular</span>
               )}
             </div>
             <p className="mb-1 text-lg font-medium" style={{ color: 'var(--foreground)' }}>{selected.english_translation}</p>
             {selected.declension_class && (
               <p className="mb-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>{selected.declension_class}</p>
             )}
-
-            <div className="rounded-xl border p-4 mt-4" style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}>
+            <div className="glass-strong rounded-2xl p-4 mt-4">
               <FormsTable adj={selected} />
             </div>
-
             {selected.example_sentence && (
-              <div className="mt-6 rounded-xl border p-4" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}>
+              <div className="glass-strong rounded-2xl p-4 mt-5">
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Example</p>
                 <p className="text-lg font-bold greek-text" style={{ color: '#0D5EAF' }}>{selected.example_sentence}</p>
                 {selected.example_translation && (
@@ -174,33 +172,30 @@ export default function AdjectiveSearch({ initialAdjectives }: Props) {
       ) : (
         <>
           {hasSearched && !isLoading && results.length === 0 && (
-            <div className="rounded-xl border p-8 text-center" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+            <div className="glass rounded-2xl p-8 text-center">
               <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>No adjectives found for &ldquo;{query}&rdquo;</p>
             </div>
           )}
-          <div className="flex flex-col gap-3">
+          <div className="perspective flex flex-col gap-3">
             {displayed.map((adj) => (
               <button
                 key={adj.id}
                 onClick={() => setSelected(adj)}
-                className="flex items-center justify-between rounded-xl border px-5 py-4 text-left transition-all hover:shadow-md"
-                style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
+                className="glass rounded-2xl card-3d flex items-center justify-between px-5 py-4 text-left group"
               >
                 <div>
                   <span className="greek-text text-lg font-bold" style={{ color: '#0D5EAF' }}>
                     {adj.masculine} / {adj.feminine} / {adj.neuter}
                   </span>
-                  <span className="ml-3 text-base" style={{ color: 'var(--foreground)' }}>
-                    {adj.english_translation}
-                  </span>
+                  <span className="ml-3 text-base" style={{ color: 'var(--foreground)' }}>{adj.english_translation}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {adj.is_irregular && (
-                    <span className="rounded-full px-2 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>
-                      irregular
-                    </span>
+                    <span className="rounded-full px-2 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>irregular</span>
                   )}
-                  <span style={{ color: 'var(--muted-foreground)' }}>→</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="transition-transform group-hover:translate-x-1" style={{ color: '#0D5EAF' }}>
+                    <path d="M6 3l5 5-5 5" />
+                  </svg>
                 </div>
               </button>
             ))}

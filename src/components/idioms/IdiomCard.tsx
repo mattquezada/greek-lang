@@ -6,10 +6,7 @@ interface Props {
 
 export default function IdiomCard({ idiom }: Props) {
   return (
-    <div
-      className="flex flex-col rounded-2xl border p-5 transition-all hover:shadow-md"
-      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-    >
+    <div className="glass flex flex-col rounded-2xl p-5 card-3d transition-all">
       {/* Category badge */}
       <div className="mb-3">
         <span

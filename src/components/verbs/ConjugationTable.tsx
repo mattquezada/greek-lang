@@ -53,17 +53,14 @@ export default function ConjugationTable({
 
   return (
     <div>
-      {/* Header badges */}
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        {isIrregular && (
-          <span
-            className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white"
-            style={{ backgroundColor: '#ef4444' }}
-          >
+      {/* Irregular badge */}
+      {isIrregular && (
+        <div className="mb-4">
+          <span className="rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>
             irregular
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
       {/* Tense tabs */}
       <div className="mb-4 flex flex-wrap gap-2">
@@ -74,18 +71,15 @@ export default function ConjugationTable({
             <button
               key={key}
               onClick={() => selectTense(key)}
-              className="rounded-lg px-3 py-2 text-sm font-medium transition-colors text-left"
+              className="rounded-xl px-3 py-2 text-sm font-medium transition-all text-left"
               style={
                 isActive
-                  ? { backgroundColor: '#0D5EAF', color: '#fff' }
-                  : { backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }
+                  ? { background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', color: '#fff', boxShadow: '0 0 14px rgba(13,94,175,0.35)' }
+                  : { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(8px)', color: 'var(--muted-foreground)' }
               }
             >
               <div>{label}</div>
-              <div
-                className="text-xs mt-0.5"
-                style={{ opacity: isActive ? 0.75 : 0.6, fontSize: '10px' }}
-              >
+              <div className="text-xs mt-0.5 opacity-60" style={{ fontSize: '10px' }}>
                 {isImperfective ? '○' : '●'} {aspect}
               </div>
             </button>
@@ -100,11 +94,11 @@ export default function ConjugationTable({
             <button
               key={v}
               onClick={() => setActiveVoice(v)}
-              className="rounded-lg border px-4 py-1.5 text-sm font-medium capitalize transition-colors"
+              className="rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-all"
               style={
                 effectiveVoice === v
-                  ? { backgroundColor: 'var(--muted)', color: 'var(--foreground)', borderColor: 'var(--border)' }
-                  : { backgroundColor: 'transparent', color: 'var(--muted-foreground)', borderColor: 'transparent' }
+                  ? { background: 'var(--glass-bg-hover)', border: '1px solid var(--glass-border-strong)', backdropFilter: 'blur(8px)', color: 'var(--foreground)' }
+                  : { background: 'transparent', color: 'var(--muted-foreground)' }
               }
             >
               {v === 'active' ? 'Active' : 'Passive'}
@@ -115,23 +109,14 @@ export default function ConjugationTable({
 
       {/* Conjugation table */}
       {currentTenseData ? (
-        <div
-          className="overflow-x-auto rounded-xl border p-4"
-          style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
-        >
+        <div className="glass-strong overflow-x-auto rounded-2xl p-4">
           <table className="w-full text-sm">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                <th
-                  className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
+              <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
                   Person
                 </th>
-                <th
-                  className="pb-2 text-left text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
+                <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
                   Form
                 </th>
               </tr>
@@ -140,20 +125,12 @@ export default function ConjugationTable({
               {PERSONS.map(({ key, label, english }) => {
                 const voice = currentTenseData[effectiveVoice] ?? currentTenseData.active
                 return (
-                  <tr
-                    key={key}
-                    className="border-b last:border-b-0"
-                    style={{ borderColor: 'var(--border)' }}
-                  >
+                  <tr key={key} className="border-b last:border-b-0" style={{ borderColor: 'var(--glass-border)' }}>
                     <td className="py-2.5 pr-4">
-                      <span className="font-medium" style={{ color: 'var(--foreground)' }}>
-                        {label}
-                      </span>
-                      <span className="ml-1.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>
-                        ({english})
-                      </span>
+                      <span className="font-medium greek-text" style={{ color: 'var(--foreground)' }}>{label}</span>
+                      <span className="ml-1.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>({english})</span>
                     </td>
-                    <td className="py-2.5 font-semibold greek-text" style={{ color: '#0D5EAF' }}>
+                    <td className="py-2.5 font-bold greek-text text-base" style={{ color: '#0D5EAF' }}>
                       {voice[key as keyof PersonTable] || '—'}
                     </td>
                   </tr>
@@ -163,27 +140,16 @@ export default function ConjugationTable({
           </table>
         </div>
       ) : (
-        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-          No data available for this tense.
-        </p>
+        <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>No data available for this tense.</p>
       )}
 
       {/* Example sentence */}
       {exampleSentence && (
-        <div
-          className="mt-6 rounded-xl border p-4"
-          style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card)' }}
-        >
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
-            Example
-          </p>
-          <p className="text-lg font-bold greek-text" style={{ color: '#0D5EAF' }}>
-            {exampleSentence}
-          </p>
+        <div className="glass-strong rounded-2xl p-4 mt-5">
+          <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Example</p>
+          <p className="text-lg font-bold greek-text" style={{ color: '#0D5EAF' }}>{exampleSentence}</p>
           {exampleTranslation && (
-            <p className="mt-1 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>
-              {exampleTranslation}
-            </p>
+            <p className="mt-1 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>{exampleTranslation}</p>
           )}
         </div>
       )}

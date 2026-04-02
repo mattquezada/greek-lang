@@ -44,8 +44,8 @@ export default function ChatInput({ onSend, disabled }: Props) {
 
   return (
     <div
-      className="flex items-end gap-3 border-t px-4 py-3"
-      style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}
+      className="flex items-end gap-3 px-4 py-3"
+      style={{ borderTop: '1px solid var(--glass-border)', background: 'var(--glass-bg)', backdropFilter: 'blur(14px)' }}
     >
       <textarea
         ref={textareaRef}
@@ -55,19 +55,14 @@ export default function ChatInput({ onSend, disabled }: Props) {
         disabled={disabled}
         placeholder="Message Eleni… (Enter to send, Shift+Enter for newline)"
         rows={1}
-        className="flex-1 resize-none rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2 disabled:opacity-50"
-        style={{
-          backgroundColor: 'var(--card)',
-          borderColor: 'var(--border)',
-          color: 'var(--foreground)',
-          lineHeight: '1.5rem',
-        }}
+        className="input-glass flex-1 resize-none rounded-xl px-4 py-3 text-sm disabled:opacity-50"
+        style={{ lineHeight: '1.5rem' }}
       />
       <button
         onClick={handleSend}
         disabled={disabled || !value.trim()}
-        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        style={{ backgroundColor: '#0D5EAF' }}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white transition-opacity hover:opacity-90 disabled:opacity-50 glow-blue"
+        style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
         aria-label="Send message"
       >
         <svg

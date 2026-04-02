@@ -18,11 +18,8 @@ export default function CategoryFilter({ categories, selected, onSelect }: Props
             className="shrink-0 rounded-full px-4 py-1.5 text-sm font-medium capitalize transition-colors"
             style={
               isActive
-                ? { backgroundColor: '#0D5EAF', color: '#fff' }
-                : {
-                    backgroundColor: 'var(--muted)',
-                    color: 'var(--muted-foreground)',
-                  }
+                ? { background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', color: '#fff', boxShadow: '0 0 16px rgba(13,94,175,0.4)' }
+                : { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(8px)', color: 'var(--muted-foreground)' }
             }
           >
             {cat}

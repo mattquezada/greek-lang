@@ -16,13 +16,6 @@ function GoogleIcon() {
   )
 }
 
-function AppleIcon() {
-  return (
-    <svg width="17" height="18" viewBox="0 0 17 18" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <path d="M14.045 9.519c-.02-2.063 1.682-3.061 1.759-3.109--.959-1.4-2.452-1.591-2.984-1.61-1.268-.13-2.481.748-3.124.748-.643 0-1.633-.731-2.688-.71-1.378.02-2.656.802-3.364 2.037-1.433 2.489-.368 6.181 1.03 8.2.683.985 1.495 2.093 2.563 2.053 1.031-.04 1.421-.664 2.67-.664 1.248 0 1.6.664 2.693.643 1.11-.02 1.808-.998 2.485-1.987.784-1.138 1.106-2.24 1.124-2.297-.024-.011-2.152-.826-2.164-3.304zM11.88 3.16c.567-.688.95-1.645.846-2.597-.818.033-1.808.546-2.393 1.233-.525.607-.985 1.579-.862 2.51.913.07 1.843-.464 2.41-1.146z"/>
-    </svg>
-  )
-}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -30,141 +23,125 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null)
+  const [oauthLoading, setOauthLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError(null)
     setIsLoading(true)
-
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password })
-
     if (authError) {
       setError(authError.message)
       setIsLoading(false)
       return
     }
-
-    router.push('/')
+    router.push('/dashboard')
   }
 
-  const handleOAuth = async (provider: 'google' | 'apple') => {
+  const handleGoogleAuth = async () => {
     setError(null)
-    setOauthLoading(provider)
+    setOauthLoading(true)
     const supabase = createClient()
     const { error: authError } = await supabase.auth.signInWithOAuth({
-      provider,
+      provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (authError) {
       setError(authError.message)
-      setOauthLoading(null)
+      setOauthLoading(false)
     }
   }
 
   return (
-    <div
-      className="flex min-h-screen items-center justify-center px-4"
-      style={{ backgroundColor: 'var(--background)' }}
-    >
-      <div
-        className="w-full max-w-sm rounded-2xl border p-8"
-        style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-      >
-        {/* Logo */}
-        <div className="mb-6 text-center">
-          <span className="text-4xl font-bold" style={{ color: '#0D5EAF' }}>Ω</span>
-          <h1 className="mt-2 text-xl font-bold" style={{ color: 'var(--foreground)' }}>
-            Sign in to Elliniká
-          </h1>
-        </div>
+    <div className="-mt-24 min-h-dvh bg-mesh-dark overflow-hidden relative flex items-center justify-center px-4 py-20">
 
-        {/* OAuth buttons */}
-        <div className="flex flex-col gap-3 mb-5">
-          <button
-            onClick={() => handleOAuth('google')}
-            disabled={!!oauthLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
-          >
-            <GoogleIcon />
-            {oauthLoading === 'google' ? 'Redirecting…' : 'Continue with Google'}
-          </button>
-          <button
-            onClick={() => handleOAuth('apple')}
-            disabled={!!oauthLoading}
-            className="flex w-full items-center justify-center gap-3 rounded-xl border px-4 py-3 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
-            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)', color: 'var(--foreground)' }}
-          >
-            <AppleIcon />
-            {oauthLoading === 'apple' ? 'Redirecting…' : 'Continue with Apple'}
-          </button>
-        </div>
+      {/* Floating Greek letters */}
+      <span className="greek-float animate-float-slow text-[6rem]" style={{ top: '10%', left: '5%' }}>Α</span>
+      <span className="greek-float animate-float-medium text-[5rem] delay-200" style={{ top: '20%', right: '6%' }}>Ω</span>
+      <span className="greek-float animate-float-slow text-[4rem] delay-400" style={{ bottom: '20%', left: '8%' }}>Λ</span>
+      <span className="greek-float animate-float-medium text-[5rem] delay-100" style={{ bottom: '15%', right: '5%' }}>Σ</span>
 
-        {/* Divider */}
-        <div className="relative mb-5 flex items-center">
-          <div className="flex-1 border-t" style={{ borderColor: 'var(--border)' }} />
-          <span className="mx-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>or</span>
-          <div className="flex-1 border-t" style={{ borderColor: 'var(--border)' }} />
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2"
-              style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-            />
+      <div className="w-full max-w-sm relative z-10 perspective animate-fade-up">
+        <div className="glass-strong rounded-3xl p-8 card-3d">
+          {/* Logo */}
+          <div className="mb-6 text-center">
+            <span className="text-5xl font-bold animate-glow-pulse text-gradient-blue">Ω</span>
+            <h1 className="mt-2 text-xl font-bold" style={{ color: 'var(--foreground)' }}>
+              Sign in to Elliniká
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>Welcome back</p>
           </div>
 
-          <div>
-            <label className="mb-1 block text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-              Password
-            </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="w-full rounded-xl border px-4 py-3 text-sm outline-none focus:ring-2"
-              style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
-            />
-          </div>
-
-          {error && (
-            <div
-              className="rounded-lg px-4 py-3 text-sm"
-              style={{ backgroundColor: 'rgba(239,68,68,0.1)', color: '#ef4444' }}
+          {/* OAuth */}
+          <div className="mb-5">
+            <button
+              onClick={handleGoogleAuth}
+              disabled={oauthLoading}
+              className="glass flex w-full items-center justify-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-opacity hover:opacity-80 disabled:opacity-50"
+              style={{ color: 'var(--foreground)' }}
             >
-              {error}
+              <GoogleIcon />
+              {oauthLoading ? 'Redirecting…' : 'Continue with Google'}
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="relative mb-5 flex items-center">
+            <div className="flex-1 h-px" style={{ background: 'var(--glass-border)' }} />
+            <span className="mx-3 text-xs" style={{ color: 'var(--muted-foreground)' }}>or</span>
+            <div className="flex-1 h-px" style={{ background: 'var(--glass-border)' }} />
+          </div>
+
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div>
+              <label className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                placeholder="you@example.com"
+                className="input-glass w-full rounded-xl px-4 py-3 text-sm"
+              />
             </div>
-          )}
+            <div>
+              <label className="mb-1.5 block text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="current-password"
+                placeholder="••••••••"
+                className="input-glass w-full rounded-xl px-4 py-3 text-sm"
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={isLoading || !!oauthLoading}
-            className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-            style={{ backgroundColor: '#0D5EAF' }}
-          >
-            {isLoading ? 'Signing in…' : 'Sign In'}
-          </button>
-        </form>
+            {error && (
+              <div className="rounded-xl px-4 py-3 text-sm" style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', color: '#ef4444' }}>
+                {error}
+              </div>
+            )}
 
-        <p className="mt-6 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>
-          Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="font-medium underline" style={{ color: '#0D5EAF' }}>
-            Sign up
-          </Link>
-        </p>
+            <button
+              type="submit"
+              disabled={isLoading || oauthLoading}
+              className="w-full rounded-xl py-3 text-sm font-semibold text-white glow-blue transition-opacity hover:opacity-90 disabled:opacity-50"
+              style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
+            >
+              {isLoading ? 'Signing in…' : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="mt-5 text-center text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            No account?{' '}
+            <Link href="/auth/signup" className="font-semibold hover:opacity-80 transition-opacity" style={{ color: '#0D5EAF' }}>
+              Create one free
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

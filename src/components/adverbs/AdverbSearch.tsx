@@ -66,8 +66,7 @@ export default function AdverbSearch({ initialAdverbs }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Greek (e.g. τώρα) or English (e.g. now)…"
-          className="w-full rounded-xl border px-5 py-4 text-base outline-none focus:ring-2"
-          style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+          className="input-glass w-full rounded-2xl px-5 py-4 text-base"
         />
         {isLoading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -82,11 +81,11 @@ export default function AdverbSearch({ initialAdverbs }: Props) {
           <button
             key={cat}
             onClick={() => setCategory(cat)}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+            className="rounded-full px-4 py-1.5 text-sm font-medium transition-all"
             style={
               category === cat
-                ? { backgroundColor: '#0D5EAF', color: '#fff' }
-                : { backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }
+                ? { background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', color: '#fff', boxShadow: '0 0 16px rgba(13,94,175,0.4)' }
+                : { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(8px)', color: 'var(--muted-foreground)' }
             }
           >
             {CATEGORY_LABELS[cat]}
@@ -96,44 +95,29 @@ export default function AdverbSearch({ initialAdverbs }: Props) {
 
       {/* No results */}
       {hasSearched && !isLoading && results.length === 0 && (
-        <div className="rounded-xl border p-8 text-center" style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}>
+        <div className="glass rounded-2xl p-8 text-center">
           <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>No adverbs found for &ldquo;{query}&rdquo;</p>
         </div>
       )}
 
       {/* Grid */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="perspective grid gap-3 sm:grid-cols-2">
         {displayed.map((adv) => (
-          <div
-            key={adv.id}
-            className="rounded-xl border p-4"
-            style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-          >
+          <div key={adv.id} className="glass rounded-2xl p-4 card-3d">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <span className="greek-text text-xl font-bold" style={{ color: '#0D5EAF' }}>
-                  {adv.greek_text}
-                </span>
-                <p className="mt-0.5 text-sm font-medium" style={{ color: 'var(--foreground)' }}>
-                  {adv.english_translation}
-                </p>
+                <span className="greek-text text-xl font-bold" style={{ color: '#0D5EAF' }}>{adv.greek_text}</span>
+                <p className="mt-0.5 text-sm font-medium" style={{ color: 'var(--foreground)' }}>{adv.english_translation}</p>
               </div>
-              <span
-                className="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium capitalize"
-                style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-              >
+              <span className="shrink-0 glass rounded-full px-2.5 py-0.5 text-xs font-medium capitalize" style={{ color: 'var(--muted-foreground)' }}>
                 {adv.category}
               </span>
             </div>
             {adv.example_sentence && (
-              <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--border)' }}>
-                <p className="greek-text text-sm font-semibold" style={{ color: '#0D5EAF' }}>
-                  {adv.example_sentence}
-                </p>
+              <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--glass-border)' }}>
+                <p className="greek-text text-sm font-semibold" style={{ color: '#0D5EAF' }}>{adv.example_sentence}</p>
                 {adv.example_translation && (
-                  <p className="mt-0.5 text-xs italic" style={{ color: 'var(--muted-foreground)' }}>
-                    {adv.example_translation}
-                  </p>
+                  <p className="mt-0.5 text-xs italic" style={{ color: 'var(--muted-foreground)' }}>{adv.example_translation}</p>
                 )}
               </div>
             )}

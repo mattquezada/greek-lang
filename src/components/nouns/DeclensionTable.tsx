@@ -38,10 +38,10 @@ const CASES = [
 export default function DeclensionTable({ declensions, greekText, article }: Props) {
   return (
     <div>
-      <div className="overflow-x-auto rounded-xl border" style={{ borderColor: 'var(--border)' }}>
+      <div className="glass-strong overflow-x-auto rounded-xl">
         <table className="w-full text-sm">
           <thead>
-            <tr style={{ backgroundColor: 'var(--muted)' }}>
+            <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
               <th
                 className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider"
                 style={{ color: 'var(--muted-foreground)' }}
@@ -67,7 +67,7 @@ export default function DeclensionTable({ declensions, greekText, article }: Pro
               <tr
                 key={key}
                 className="border-t last:border-b-0"
-                style={{ borderColor: 'var(--border)' }}
+                style={{ borderColor: 'var(--glass-border)' }}
               >
                 <td className="px-4 py-3">
                   <span className="font-medium" style={{ color: 'var(--foreground)' }}>
@@ -90,10 +90,7 @@ export default function DeclensionTable({ declensions, greekText, article }: Pro
       </div>
 
       {/* Case notes */}
-      <div
-        className="mt-3 rounded-xl border px-4 py-3"
-        style={{ borderColor: 'var(--border)', backgroundColor: 'var(--muted)' }}
-      >
+      <div className="glass mt-3 rounded-xl px-4 py-3">
         <p className="mb-1.5 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
           Case usage
         </p>

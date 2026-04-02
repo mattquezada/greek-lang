@@ -73,19 +73,11 @@ export default function NounSearch({ initialNouns }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Greek (e.g. φίλος) or English (e.g. friend)…"
-          className="w-full rounded-xl border px-5 py-4 text-base outline-none focus:ring-2"
-          style={{
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            color: 'var(--foreground)',
-          }}
+          className="input-glass w-full rounded-2xl px-5 py-4 text-base"
         />
         {isLoading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div
-              className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
-              style={{ borderColor: '#0D5EAF', borderTopColor: 'transparent' }}
-            />
+            <div className="h-5 w-5 animate-spin rounded-full border-2" style={{ borderColor: '#0D5EAF', borderTopColor: 'transparent' }} />
           </div>
         )}
       </div>
@@ -95,15 +87,12 @@ export default function NounSearch({ initialNouns }: Props) {
         {GENDER_BUTTONS.map(({ value, label }) => (
           <button
             key={value}
-            onClick={() => {
-              setGenderFilter(value)
-              setSelectedNoun(null)
-            }}
-            className="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
+            onClick={() => { setGenderFilter(value); setSelectedNoun(null) }}
+            className="rounded-full px-4 py-1.5 text-sm font-medium transition-all"
             style={
               genderFilter === value
-                ? { backgroundColor: '#0D5EAF', color: '#fff' }
-                : { backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }
+                ? { background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', color: '#fff', boxShadow: '0 0 16px rgba(13,94,175,0.4)' }
+                : { background: 'var(--glass-bg)', border: '1px solid var(--glass-border)', backdropFilter: 'blur(8px)', color: 'var(--muted-foreground)' }
             }
           >
             {label}
@@ -113,30 +102,26 @@ export default function NounSearch({ initialNouns }: Props) {
 
       {/* Selected noun detail view */}
       {selectedNoun ? (
-        <div>
+        <div className="animate-fade-up">
           <button
             onClick={() => setSelectedNoun(null)}
-            className="mb-4 flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-70"
+            className="mb-4 flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
             style={{ color: '#0D5EAF' }}
           >
-            ← Back to results
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M10 3L5 8l5 5" />
+            </svg>
+            Back to results
           </button>
-          <div
-            className="rounded-2xl border p-6"
-            style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-          >
+          <div className="glass rounded-3xl p-5 sm:p-6">
             <div className="mb-2 flex flex-wrap items-baseline gap-2">
               <h2 className="text-3xl font-bold" style={{ color: '#0D5EAF' }}>
                 {selectedNoun.article} {selectedNoun.greek_text}
               </h2>
             </div>
-            <p className="mb-1 text-lg font-medium" style={{ color: 'var(--foreground)' }}>
-              {selectedNoun.english_translation}
-            </p>
+            <p className="mb-1 text-lg font-medium" style={{ color: 'var(--foreground)' }}>{selectedNoun.english_translation}</p>
             {selectedNoun.declension_class && (
-              <p className="mb-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                {selectedNoun.declension_class}
-              </p>
+              <p className="mb-4 text-sm" style={{ color: 'var(--muted-foreground)' }}>{selectedNoun.declension_class}</p>
             )}
             <DeclensionTable
               declensions={selectedNoun.declensions}
@@ -144,23 +129,13 @@ export default function NounSearch({ initialNouns }: Props) {
               article={selectedNoun.article}
             />
             {selectedNoun.example_sentence && (
-              <div
-                className="mt-6 rounded-xl border p-4"
-                style={{ borderColor: 'var(--border)', backgroundColor: 'var(--background)' }}
-              >
-                <p
-                  className="mb-2 text-xs font-semibold uppercase tracking-wider"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
+              <div className="glass-strong rounded-2xl p-4 mt-5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>
                   Example sentence
                 </p>
-                <p className="text-lg font-bold" style={{ color: '#0D5EAF' }}>
-                  {selectedNoun.example_sentence}
-                </p>
+                <p className="text-lg font-bold" style={{ color: '#0D5EAF' }}>{selectedNoun.example_sentence}</p>
                 {selectedNoun.example_translation && (
-                  <p className="mt-1 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>
-                    {selectedNoun.example_translation}
-                  </p>
+                  <p className="mt-1 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>{selectedNoun.example_translation}</p>
                 )}
               </div>
             )}
@@ -168,30 +143,15 @@ export default function NounSearch({ initialNouns }: Props) {
         </div>
       ) : (
         <>
-          {/* No results message */}
           {hasSearched && !isLoading && results.length === 0 && (
-            <div
-              className="rounded-xl border p-8 text-center"
-              style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-            >
-              <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
-                No nouns found for &ldquo;{query}&rdquo;
-              </p>
-              <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                Try searching in Greek script or check your spelling.
-              </p>
+            <div className="glass rounded-2xl p-8 text-center">
+              <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>No nouns found for &ldquo;{query}&rdquo;</p>
+              <p className="mt-1 text-sm" style={{ color: 'var(--muted-foreground)' }}>Try searching in Greek script or check your spelling.</p>
             </div>
           )}
-
-          {/* Noun list */}
-          <div className="flex flex-col gap-3">
+          <div className="perspective flex flex-col gap-3">
             {displayedNouns.map((noun) => (
-              <div
-                key={noun.id}
-                className="cursor-pointer transition-all hover:shadow-md"
-                onClick={() => setSelectedNoun(noun)}
-                style={{ borderRadius: '0.75rem' }}
-              >
+              <div key={noun.id} className="cursor-pointer card-3d" onClick={() => setSelectedNoun(noun)}>
                 <NounCard noun={noun} />
               </div>
             ))}

@@ -63,12 +63,7 @@ export default function IdiomSearch({ initialIdioms }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search idioms in Greek or English…"
-          className="w-full rounded-xl border px-5 py-3 text-base outline-none focus:ring-2"
-          style={{
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            color: 'var(--foreground)',
-          }}
+          className="input-glass w-full rounded-2xl px-5 py-4 text-base"
         />
       </div>
 
@@ -94,10 +89,7 @@ export default function IdiomSearch({ initialIdioms }: Props) {
 
       {/* Results */}
       {!isLoading && results.length === 0 && (
-        <div
-          className="rounded-xl border p-10 text-center"
-          style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-        >
+        <div className="glass rounded-2xl p-10 text-center">
           <p className="text-lg" style={{ color: 'var(--muted-foreground)' }}>
             No idioms found
             {query && ` for "${query}"`}

@@ -7,19 +7,16 @@ interface Props {
 }
 
 const genderStyles: Record<Noun['gender'], { bg: string; color: string; label: string }> = {
-  masculine: { bg: 'rgba(13,94,175,0.12)', color: '#0D5EAF', label: 'Masculine' },
-  feminine: { bg: 'rgba(236,72,153,0.12)', color: '#db2777', label: 'Feminine' },
-  neuter: { bg: 'rgba(22,163,74,0.12)', color: '#16a34a', label: 'Neuter' },
+  masculine: { bg: 'rgba(13,94,175,0.15)', color: '#0D5EAF', label: 'Masculine' },
+  feminine: { bg: 'rgba(236,72,153,0.15)', color: '#db2777', label: 'Feminine' },
+  neuter: { bg: 'rgba(22,163,74,0.15)', color: '#16a34a', label: 'Neuter' },
 }
 
 export default function NounCard({ noun }: Props) {
   const genderStyle = genderStyles[noun.gender]
 
   return (
-    <div
-      className="rounded-xl border px-5 py-4"
-      style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-    >
+    <div className="glass rounded-2xl px-5 py-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2 flex-wrap">
@@ -27,8 +24,8 @@ export default function NounCard({ noun }: Props) {
               {noun.article} {noun.greek_text}
             </span>
             <span
-              className="rounded-full px-2 py-0.5 text-xs font-medium"
-              style={{ backgroundColor: genderStyle.bg, color: genderStyle.color }}
+              className="rounded-full px-2.5 py-0.5 text-xs font-medium"
+              style={{ background: genderStyle.bg, color: genderStyle.color }}
             >
               {genderStyle.label}
             </span>
@@ -47,6 +44,9 @@ export default function NounCard({ noun }: Props) {
             </p>
           )}
         </div>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="mt-1 flex-shrink-0" style={{ color: '#0D5EAF' }}>
+          <path d="M5 2l5 5-5 5" />
+        </svg>
       </div>
     </div>
   )

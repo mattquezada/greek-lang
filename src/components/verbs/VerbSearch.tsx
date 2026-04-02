@@ -56,13 +56,9 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
     <div>
       {/* Search input */}
       <div className="relative mb-6">
-        <div
-          className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2"
-          style={{ color: 'var(--muted-foreground)' }}
-        >
+        <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2" style={{ color: 'var(--muted-foreground)' }}>
           <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="9" cy="9" r="6" />
-            <path d="M15 15l3 3" />
+            <circle cx="9" cy="9" r="6" /><path d="M15 15l3 3" />
           </svg>
         </div>
         <input
@@ -70,19 +66,11 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search in Greek (e.g. λέω) or English (e.g. say)…"
-          className="w-full rounded-xl border px-5 py-4 pl-10 text-base outline-none focus:ring-2"
-          style={{
-            backgroundColor: 'var(--background)',
-            borderColor: 'var(--border)',
-            color: 'var(--foreground)',
-          }}
+          className="input-glass w-full rounded-2xl pl-11 pr-12 py-4 text-base"
         />
         {isLoading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div
-              className="h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"
-              style={{ borderColor: '#0D5EAF', borderTopColor: 'transparent' }}
-            />
+            <div className="h-5 w-5 animate-spin rounded-full border-2" style={{ borderColor: '#0D5EAF', borderTopColor: 'transparent' }} />
           </div>
         )}
       </div>
@@ -90,10 +78,7 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
       {/* Results */}
       <div>
         {hasSearched && !isLoading && results.length === 0 && (
-          <div
-            className="rounded-xl border p-8 text-center"
-            style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-          >
+          <div className="glass rounded-2xl p-8 text-center">
             <p className="text-base" style={{ color: 'var(--muted-foreground)' }}>
               No verbs found for &ldquo;{query}&rdquo;
             </p>
@@ -104,59 +89,29 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
         )}
 
         {!selectedVerb && displayedVerbs.length > 0 && (
-          <div className="flex flex-col gap-2">
+          <div className="perspective flex flex-col gap-2">
             {displayedVerbs.map((verb) => (
               <button
                 key={verb.id}
                 onClick={() => setSelectedVerb(verb)}
-                className="flex items-center justify-between rounded-xl border px-5 py-4 text-left transition-all hover:shadow-md cursor-pointer"
-                style={{
-                  backgroundColor: 'var(--card)',
-                  borderColor: 'var(--border)',
-                }}
+                className="glass rounded-2xl card-3d flex items-center justify-between px-5 py-4 text-left cursor-pointer group"
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline gap-2">
-                    <span className="greek-text text-lg font-bold" style={{ color: '#0D5EAF' }}>
-                      {verb.greek_text}
-                    </span>
+                    <span className="greek-text text-lg font-bold" style={{ color: '#0D5EAF' }}>{verb.greek_text}</span>
                     {verb.is_irregular && (
-                      <span
-                        className="rounded-full px-2 py-0.5 text-xs font-medium text-white"
-                        style={{ backgroundColor: '#ef4444' }}
-                      >
-                        irregular
-                      </span>
+                      <span className="rounded-full px-2 py-0.5 text-xs font-medium text-white" style={{ backgroundColor: '#ef4444' }}>irregular</span>
                     )}
                     {verb.verb_class && (
-                      <span
-                        className="rounded-full px-2 py-0.5 text-xs font-medium"
-                        style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-                      >
-                        {verb.verb_class}
-                      </span>
+                      <span className="glass rounded-full px-2 py-0.5 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>{verb.verb_class}</span>
                     )}
                   </div>
-                  <p className="mt-0.5 text-sm" style={{ color: 'var(--foreground)' }}>
-                    {verb.english_translation}
-                  </p>
+                  <p className="mt-0.5 text-sm" style={{ color: 'var(--foreground)' }}>{verb.english_translation}</p>
                   {verb.aspect_note && (
-                    <p className="mt-0.5 text-xs italic" style={{ color: 'var(--muted-foreground)' }}>
-                      {verb.aspect_note}
-                    </p>
+                    <p className="mt-0.5 text-xs italic" style={{ color: 'var(--muted-foreground)' }}>{verb.aspect_note}</p>
                   )}
                 </div>
-                <svg
-                  width="16" height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="ml-3 flex-shrink-0"
-                  style={{ color: 'var(--muted-foreground)' }}
-                >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="ml-3 flex-shrink-0 transition-transform group-hover:translate-x-1" style={{ color: '#0D5EAF' }}>
                   <path d="M6 3l5 5-5 5" />
                 </svg>
               </button>
@@ -165,7 +120,7 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
         )}
 
         {selectedVerb && (
-          <div>
+          <div className="animate-fade-up">
             <button
               onClick={() => setSelectedVerb(null)}
               className="mb-4 flex items-center gap-1.5 text-sm font-medium transition-opacity hover:opacity-70"
@@ -176,22 +131,13 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
               </svg>
               Back to results
             </button>
-            <div
-              className="rounded-2xl border p-4 sm:p-6"
-              style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-            >
+            <div className="glass rounded-3xl p-5 sm:p-6">
               <div className="mb-4 flex flex-wrap items-start gap-3">
-                <h2 className="greek-text text-3xl font-bold" style={{ color: '#0D5EAF' }}>
-                  {selectedVerb.greek_text}
-                </h2>
+                <h2 className="greek-text text-3xl font-bold" style={{ color: '#0D5EAF' }}>{selectedVerb.greek_text}</h2>
                 <div>
-                  <p className="text-lg font-medium" style={{ color: 'var(--foreground)' }}>
-                    {selectedVerb.english_translation}
-                  </p>
+                  <p className="text-lg font-medium" style={{ color: 'var(--foreground)' }}>{selectedVerb.english_translation}</p>
                   {selectedVerb.aspect_note && (
-                    <p className="mt-0.5 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>
-                      {selectedVerb.aspect_note}
-                    </p>
+                    <p className="mt-0.5 text-sm italic" style={{ color: 'var(--muted-foreground)' }}>{selectedVerb.aspect_note}</p>
                   )}
                 </div>
               </div>
@@ -219,64 +165,47 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
                 { key: 'pl3', label: 'αυτοί·ές', english: 'they' },
               ] as const
               return (
-                <div
-                  className="mt-4 rounded-2xl border p-4 sm:p-6"
-                  style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-                >
-                  <h3 className="text-lg font-bold mb-0.5" style={{ color: 'var(--foreground)' }}>
-                    Perfective Subjunctive
-                  </h3>
+                <div className="glass rounded-3xl p-5 sm:p-6 mt-4">
+                  <h3 className="text-lg font-bold mb-0.5" style={{ color: 'var(--foreground)' }}>Perfective Subjunctive</h3>
                   <p className="text-sm mb-3" style={{ color: 'var(--muted-foreground)' }}>
-                    Used after <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>να</span>,{' '}
-                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>ας</span>,{' '}
-                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>πριν να</span>,{' '}
-                    <span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>για να</span>…
+                    Used after{' '}
+                    {['να', 'ας', 'πριν να', 'για να'].map((p, i) => (
+                      <span key={p}><span className="greek-text font-semibold" style={{ color: '#0D5EAF' }}>{p}</span>{i < 3 ? ', ' : '…'}</span>
+                    ))}
                   </p>
-                  <div
-                    className="mb-4 rounded-xl border px-4 py-3 text-xs"
-                    style={{ backgroundColor: 'var(--muted)', borderColor: 'var(--border)', color: 'var(--muted-foreground)' }}
-                  >
-                    The perfective stem is used <strong style={{ color: 'var(--foreground)' }}>bare — without θα</strong> — after να and similar particles. These are the aorist active forms in a different grammatical role.
+                  <div className="glass-strong rounded-xl px-4 py-3 text-xs mb-4" style={{ color: 'var(--muted-foreground)' }}>
+                    The perfective stem is used <strong style={{ color: 'var(--foreground)' }}>bare — without θα</strong> — after να and similar particles.
                   </div>
-
-                  <div
-                    className="overflow-x-auto rounded-xl border p-4 mb-4"
-                    style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)' }}
-                  >
+                  <div className="glass-strong overflow-x-auto rounded-xl p-4 mb-4">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr style={{ borderBottom: '1px solid var(--border)' }}>
-                          <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Person</th>
-                          <th className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>Form (bare)</th>
-                          <th className="pb-2 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>With να</th>
+                        <tr style={{ borderBottom: '1px solid var(--glass-border)' }}>
+                          {['Person', 'Form (bare)', 'With να'].map((h) => (
+                            <th key={h} className="pb-2 pr-4 text-left text-xs font-semibold uppercase tracking-wider" style={{ color: 'var(--muted-foreground)' }}>{h}</th>
+                          ))}
                         </tr>
                       </thead>
                       <tbody>
                         {PERSONS.map(({ key, label, english }) => (
-                          <tr key={key} className="border-b last:border-b-0" style={{ borderColor: 'var(--border)' }}>
+                          <tr key={key} className="border-b last:border-b-0" style={{ borderColor: 'var(--glass-border)' }}>
                             <td className="py-2.5 pr-4">
                               <span className="greek-text font-medium" style={{ color: 'var(--foreground)' }}>{label}</span>
                               <span className="ml-1.5 text-xs" style={{ color: 'var(--muted-foreground)' }}>({english})</span>
                             </td>
-                            <td className="py-2.5 pr-4 greek-text font-semibold" style={{ color: '#0D5EAF' }}>
-                              {a[key as keyof typeof a] || '—'}
-                            </td>
-                            <td className="py-2.5 greek-text text-sm" style={{ color: 'var(--muted-foreground)' }}>
-                              να {a[key as keyof typeof a] || '—'}
-                            </td>
+                            <td className="py-2.5 pr-4 greek-text font-semibold" style={{ color: '#0D5EAF' }}>{a[key as keyof typeof a] || '—'}</td>
+                            <td className="py-2.5 greek-text text-sm" style={{ color: 'var(--muted-foreground)' }}>να {a[key as keyof typeof a] || '—'}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-
                   <div className="flex flex-col gap-2">
                     {[
                       { phrase: `Θέλω να ${a.sg1}.`, translation: `I want to ${selectedVerb.english_translation}.` },
                       { phrase: `Πρέπει να ${a.sg2}.`, translation: `You must ${selectedVerb.english_translation}.` },
                       { phrase: `Ας ${a.pl1}!`, translation: `Let's ${selectedVerb.english_translation}!` },
                     ].map(({ phrase, translation }) => (
-                      <div key={phrase} className="rounded-lg border-l-4 pl-3 py-1" style={{ borderColor: '#0D5EAF' }}>
+                      <div key={phrase} className="glass rounded-xl pl-4 py-2 border-l-4" style={{ borderLeftColor: '#0D5EAF' }}>
                         <p className="greek-text font-semibold text-sm" style={{ color: '#0D5EAF' }}>{phrase}</p>
                         <p className="text-xs italic mt-0.5" style={{ color: 'var(--muted-foreground)' }}>{translation}</p>
                       </div>

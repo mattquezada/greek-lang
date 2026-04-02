@@ -30,8 +30,8 @@ export default function ChatWindow({ messages, isLoading, onSend }: Props) {
           {messages.length === 0 && (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div
-                className="mb-4 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white"
-                style={{ backgroundColor: '#0D5EAF' }}
+                className="mb-4 flex h-16 w-16 items-center justify-center rounded-full text-2xl font-bold text-white animate-glow-pulse"
+                style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)', boxShadow: '0 0 24px rgba(13,94,175,0.4)' }}
               >
                 Ε
               </div>

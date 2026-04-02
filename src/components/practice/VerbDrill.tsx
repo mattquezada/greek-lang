@@ -36,16 +36,13 @@ interface Challenge {
 function pickChallenge(verbs: Verb[]): Challenge | null {
   const eligible = verbs.filter((v) => v.conjugations?.present?.active)
   if (eligible.length === 0) return null
-
   const verb = eligible[Math.floor(Math.random() * eligible.length)]
   const availableTenses = TENSES.filter((t) => verb.conjugations[t.key]?.active)
   if (availableTenses.length === 0) return null
-
   const tense = availableTenses[Math.floor(Math.random() * availableTenses.length)]
   const person = PERSONS[Math.floor(Math.random() * PERSONS.length)]
   const answer = verb.conjugations[tense.key]?.active?.[person.key] ?? ''
   if (!answer) return null
-
   return { verb, tense: tense.key, person: person.key, answer }
 }
 
@@ -89,10 +86,10 @@ export default function VerbDrill({ verbs }: Props) {
 
   if (!started) {
     return (
-      <div className="flex flex-col items-center gap-6 py-10 text-center">
-        <div className="text-5xl">⚡</div>
+      <div className="glass rounded-3xl p-10 flex flex-col items-center gap-6 text-center card-3d perspective">
+        <div className="text-6xl animate-float-slow">⚡</div>
         <div>
-          <h2 className="text-xl font-bold mb-1" style={{ color: 'var(--foreground)' }}>Verb Drill</h2>
+          <h2 className="text-2xl font-bold mb-2 text-gradient-blue">Verb Drill</h2>
           <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
             {verbs.length} verbs loaded · type the conjugated form
           </p>
@@ -102,8 +99,8 @@ export default function VerbDrill({ verbs }: Props) {
         </div>
         <button
           onClick={() => setStarted(true)}
-          className="rounded-xl px-8 py-3 text-sm font-semibold text-white"
-          style={{ backgroundColor: '#0D5EAF' }}
+          className="rounded-2xl px-10 py-3.5 text-sm font-semibold text-white glow-blue transition-opacity hover:opacity-90"
+          style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
         >
           Start Drill
         </button>
@@ -123,27 +120,24 @@ export default function VerbDrill({ verbs }: Props) {
   const tenseData = TENSES.find((t) => t.key === challenge.tense)!
 
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-4">
       {/* Score bar */}
-      <div className="flex items-center justify-between">
-        <div className="flex gap-3 text-sm">
-          <span style={{ color: '#059669' }}>{score.correct} correct</span>
+      <div className="glass rounded-2xl px-5 py-3 flex items-center justify-between">
+        <div className="flex gap-4 text-sm">
+          <span className="font-semibold" style={{ color: '#10b981' }}>{score.correct} correct</span>
           <span style={{ color: 'var(--muted-foreground)' }}>{score.total - score.correct} missed</span>
         </div>
         {score.streak >= 2 && (
-          <span className="text-sm font-semibold" style={{ color: '#d97706' }}>
+          <span className="text-sm font-bold text-gradient-gold">
             🔥 {score.streak} streak
           </span>
         )}
       </div>
 
       {/* Challenge card */}
-      <div
-        className="rounded-2xl border p-6"
-        style={{ backgroundColor: 'var(--card)', borderColor: 'var(--border)' }}
-      >
+      <div className="glass rounded-3xl p-6 animate-fade-up">
         {/* Verb + tense */}
-        <div className="mb-1">
+        <div className="mb-2">
           <span className="greek-text text-2xl font-bold" style={{ color: '#0D5EAF' }}>
             {challenge.verb.greek_text}
           </span>
@@ -155,26 +149,20 @@ export default function VerbDrill({ verbs }: Props) {
         </div>
         <div className="mb-5 flex gap-2 flex-wrap">
           <span
-            className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
-            style={{ backgroundColor: '#7c3aed' }}
+            className="rounded-full px-3 py-0.5 text-xs font-semibold text-white glow-violet"
+            style={{ background: '#7c3aed' }}
           >
             {tenseData.label}
           </span>
-          <span
-            className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-            style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-          >
+          <span className="glass rounded-full px-3 py-0.5 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
             {personData.label}
           </span>
-          <span
-            className="greek-text rounded-full px-2.5 py-0.5 text-xs font-medium"
-            style={{ backgroundColor: 'var(--muted)', color: 'var(--muted-foreground)' }}
-          >
+          <span className="glass rounded-full px-3 py-0.5 text-xs font-medium greek-text" style={{ color: 'var(--muted-foreground)' }}>
             {personData.greek}
           </span>
         </div>
 
-        <p className="mb-3 text-base font-medium" style={{ color: 'var(--foreground)' }}>
+        <p className="mb-4 text-base font-medium" style={{ color: 'var(--foreground)' }}>
           What is the {tenseData.label.toLowerCase()} active form for <strong>{personData.label}</strong>?
         </p>
 
@@ -187,14 +175,13 @@ export default function VerbDrill({ verbs }: Props) {
               onChange={(e) => setUserAnswer(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               placeholder="Type the Greek form…"
-              className="flex-1 rounded-xl border px-4 py-3 text-base greek-text outline-none focus:ring-2"
-              style={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', color: 'var(--foreground)' }}
+              className="input-glass flex-1 rounded-xl px-4 py-3 text-base greek-text"
             />
             <button
               onClick={submit}
               disabled={!userAnswer.trim()}
-              className="rounded-xl px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
-              style={{ backgroundColor: '#0D5EAF' }}
+              className="rounded-xl px-5 py-3 text-sm font-semibold text-white glow-blue transition-opacity hover:opacity-90 disabled:opacity-40"
+              style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
             >
               Check
             </button>
@@ -202,19 +189,19 @@ export default function VerbDrill({ verbs }: Props) {
         ) : (
           <div className="flex flex-col gap-3">
             <div
-              className="rounded-xl border px-4 py-3"
+              className="glass-strong rounded-2xl px-4 py-3"
               style={{
-                backgroundColor: isCorrect ? 'rgba(5,150,105,0.08)' : 'rgba(239,68,68,0.08)',
-                borderColor: isCorrect ? '#059669' : '#ef4444',
+                border: `1px solid ${isCorrect ? 'rgba(16,185,129,0.4)' : 'rgba(239,68,68,0.4)'}`,
+                boxShadow: isCorrect ? '0 0 20px rgba(16,185,129,0.2)' : '0 0 20px rgba(239,68,68,0.1)',
               }}
             >
               <div className="flex items-center gap-2 mb-1">
-                <span>{isCorrect ? '✓' : '✗'}</span>
-                <span className="font-semibold text-sm" style={{ color: isCorrect ? '#059669' : '#ef4444' }}>
+                <span className="text-lg">{isCorrect ? '✓' : '✗'}</span>
+                <span className="font-semibold text-sm" style={{ color: isCorrect ? '#10b981' : '#ef4444' }}>
                   {isCorrect ? 'Correct!' : 'Not quite'}
                 </span>
               </div>
-              <p className="greek-text text-lg font-bold" style={{ color: 'var(--foreground)' }}>
+              <p className="greek-text text-xl font-bold" style={{ color: 'var(--foreground)' }}>
                 {challenge.answer}
               </p>
               {!isCorrect && (
@@ -225,8 +212,8 @@ export default function VerbDrill({ verbs }: Props) {
             </div>
             <button
               onClick={nextChallenge}
-              className="w-full rounded-xl py-3 text-sm font-semibold text-white"
-              style={{ backgroundColor: '#0D5EAF' }}
+              className="w-full rounded-2xl py-3 text-sm font-semibold text-white glow-blue transition-opacity hover:opacity-90"
+              style={{ background: 'linear-gradient(135deg, #0D5EAF, #3b82d4)' }}
             >
               Next →
             </button>

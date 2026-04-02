@@ -10,13 +10,7 @@ interface LetterCardProps {
 
 export default function LetterCard({ letter, isQuizMode = false, isFlipped = false }: LetterCardProps) {
   return (
-    <div
-      className="flex flex-col items-center rounded-2xl border p-4 transition-all hover:shadow-md"
-      style={{
-        backgroundColor: 'var(--card)',
-        borderColor: 'var(--border)',
-      }}
-    >
+    <div className="glass flex flex-col items-center rounded-2xl p-4 card-3d transition-all">
       {/* Main letters */}
       <div
         className="greek-text mb-1 flex items-baseline gap-3 font-bold leading-none"
@@ -44,10 +38,7 @@ export default function LetterCard({ letter, isQuizMode = false, isFlipped = fal
 
       {/* Example — only when not in quiz mode */}
       {!isQuizMode && (
-        <div
-          className="mt-3 w-full rounded-lg px-3 py-2 text-center"
-          style={{ backgroundColor: 'var(--muted)' }}
-        >
+        <div className="glass-strong mt-3 w-full rounded-lg px-3 py-2 text-center">
           <div
             className="greek-text text-sm font-medium"
             style={{ color: 'var(--foreground)' }}

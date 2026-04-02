@@ -11,11 +11,9 @@ export default function VerbCard({ verb, onClick }: Props) {
   return (
     <button
       onClick={onClick}
-      className="w-full rounded-xl border px-5 py-4 text-left transition-all hover:shadow-md"
-      style={{
-        backgroundColor: 'var(--card)',
-        borderColor: 'var(--border)',
-      }}
+      className="glass w-full rounded-2xl px-5 py-4 text-left card-3d transition-all"
+      style={{}}
+
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
