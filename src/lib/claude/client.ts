@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import type { ConjugationTable } from '@/types/verb'
+import type { ConjugationTable, VoiceTable } from '@/types/verb'
 import type { Noun } from '@/types/noun'
 import type { Adjective } from '@/types/adjective'
 import type { Adverb } from '@/types/adverb'
@@ -111,25 +111,19 @@ Return ONLY valid JSON matching this exact structure (no markdown, no explanatio
   "is_irregular": false,
   "aspect_note": "",
   "conjugations": {
-    "present": {
-      "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-      "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-    },
-    "imperfect": {
-      "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-      "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-    },
-    "aorist": {
-      "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-      "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-    },
-    "future": {
-      "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-      "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-    },
-    "imperative": {
-      "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-    }
+    "present":             { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "imperfect":           { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "future_continuous":   { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "aorist":              { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "future":              { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "present_perfect":     { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "pluperfect":          { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "future_perfect":      { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "subjunctive_present": { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "subjunctive_aorist":  { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "conditional":         { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+    "imperative":          { "active": { "sg2": "", "pl2": "" } },
+    "imperative_negative": { "active": { "sg2": "", "pl2": "" } }
   }
 }
 
@@ -139,12 +133,16 @@ Rules:
 - aspect_note: brief note on perfective vs imperfective usage
 - Use proper Greek Unicode with correct monotonic accent marks (τόνοι)
 - Leave passive forms as empty strings if the verb has no passive
-- For future tense include θα + subjunctive form`
+- future_continuous: θα + present form; future: θα + aorist subjunctive form
+- present_perfect: έχω/έχεις/... + verbal adjective; pluperfect: είχα/...; future_perfect: θα έχω/...
+- subjunctive_present: να + imperfective (present) stem; subjunctive_aorist: να + perfective (aorist) stem
+- conditional: θα + imperfect forms (θα έγραφα, θα έγραφες, θα έγραφε, θα γράφαμε, θα γράφατε, θα έγραφαν)
+- imperative_negative: include μην (e.g. μην γράψεις / μην γράψετε)`
 
   try {
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -163,33 +161,33 @@ export async function getConjugationFromClaude(greekVerb: string): Promise<Conju
 
 Return ONLY valid JSON matching this exact structure (no markdown, no explanation):
 {
-  "present": {
-    "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-    "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-  },
-  "imperfect": {
-    "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-    "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-  },
-  "aorist": {
-    "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-    "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-  },
-  "future": {
-    "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" },
-    "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-  },
-  "imperative": {
-    "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }
-  }
+  "present":             { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "imperfect":           { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "future_continuous":   { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "aorist":              { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "future":              { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "present_perfect":     { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "pluperfect":          { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "future_perfect":      { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "subjunctive_present": { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "subjunctive_aorist":  { "active": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }, "passive": { "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" } },
+  "imperative":          { "active": { "sg2": "", "pl2": "" } },
+  "imperative_negative": { "active": { "sg2": "", "pl2": "" } }
 }
 
-Use proper Greek Unicode with correct accent marks (τόνοι). Leave passive empty string if verb has no passive form. For future tense, include θα + subjunctive form.`
+Rules:
+- Use proper Greek Unicode with correct accent marks (τόνοι)
+- Leave passive forms as empty strings if the verb has no passive
+- future_continuous: θα + present form; future: θα + aorist subjunctive form
+- present_perfect: έχω/έχεις/... + verbal adjective; pluperfect: είχα/...; future_perfect: θα έχω/...
+- subjunctive_present: να + imperfective (present) stem; subjunctive_aorist: να + perfective (aorist) stem
+- conditional: θα + imperfect forms (θα έγραφα, θα έγραφες, θα έγραφε, θα γράφαμε, θα γράφατε, θα έγραφαν)
+- imperative_negative: include μην (e.g. μην γράψεις / μην γράψετε)`
 
   try {
     const response = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
-      max_tokens: 1024,
+      max_tokens: 2048,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -200,6 +198,96 @@ Use proper Greek Unicode with correct accent marks (τόνοι). Leave passive e
     return null
   }
 }
+
+const ENRICHABLE_TENSES = [
+  'present_perfect',
+  'pluperfect',
+  'future_perfect',
+  'conditional',
+  'imperative',
+  'imperative_negative',
+  'subjunctive_present',
+  'subjunctive_aorist',
+] as const
+
+type EnrichableTense = typeof ENRICHABLE_TENSES[number]
+
+const TENSE_DESCRIPTIONS: Record<EnrichableTense, string> = {
+  present_perfect:     'Present Perfect (έχω + verbal adjective, e.g. έχω γράψει)',
+  pluperfect:          'Pluperfect / Past Perfect (είχα + verbal adjective, e.g. είχα γράψει)',
+  future_perfect:      'Future Perfect (θα έχω + verbal adjective, e.g. θα έχω γράψει)',
+  conditional:         'Conditional (θα + imperfect stem, e.g. θα έγραφα = I would write)',
+  imperative:          'Positive Imperative — sg2 and pl2 only (e.g. γράψε / γράψτε)',
+  imperative_negative: 'Negative Imperative — sg2 and pl2 only, include μην (e.g. μην γράψεις / μην γράψετε)',
+  subjunctive_present: 'Subjunctive Present — να + imperfective/present stem (e.g. να γράφω)',
+  subjunctive_aorist:  'Subjunctive Aorist — να + perfective/aorist stem (e.g. να γράψω)',
+}
+
+function buildEnrichmentTemplate(keys: EnrichableTense[]): string {
+  const personsFull = '{ "sg1": "", "sg2": "", "sg3": "", "pl1": "", "pl2": "", "pl3": "" }'
+  const voiceFull   = `{ "active": ${personsFull}, "passive": ${personsFull} }`
+  const imperative  = '{ "active": { "sg2": "", "pl2": "" } }'
+
+  const entries = keys.map((k) => {
+    const val = (k === 'imperative' || k === 'imperative_negative') ? imperative : voiceFull
+    return `  "${k}": ${val}`
+  })
+  return `{\n${entries.join(',\n')}\n}`
+}
+
+export async function enrichMissingConjugations(
+  greekVerb: string,
+  missing: EnrichableTense[]
+): Promise<Partial<ConjugationTable> | null> {
+  if (missing.length === 0) return null
+  const client = getAnthropicClient()
+
+  const descriptions = missing.map((k) => `- ${k}: ${TENSE_DESCRIPTIONS[k]}`).join('\n')
+  const template = buildEnrichmentTemplate(missing)
+
+  const prompt = `Provide the following conjugation forms for the Modern Greek verb "${greekVerb}".
+
+Tenses needed:
+${descriptions}
+
+Return ONLY valid JSON matching this exact structure (no markdown, no explanation):
+${template}
+
+Rules:
+- Use proper Greek Unicode with correct monotonic accent marks (τόνοι)
+- Leave passive forms as empty strings if the verb has no passive
+- For future tense compound forms include the full form (θα έχω γράψει, etc.)
+- For negative imperative include μην in the form (e.g. μην γράψεις)`
+
+  try {
+    const response = await client.messages.create({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: prompt }],
+    })
+
+    const text = response.content[0].type === 'text' ? response.content[0].text : ''
+    const cleaned = text.replace(/```json\n?|\n?```/g, '').trim()
+    const parsed = JSON.parse(cleaned) as Partial<ConjugationTable>
+
+    // Normalize imperative entries: expand {sg2, pl2} to full PersonTable shape
+    for (const k of ['imperative', 'imperative_negative'] as const) {
+      const entry = parsed[k] as { active?: { sg2?: string; pl2?: string } } | undefined
+      if (entry?.active) {
+        parsed[k] = {
+          active: { sg1: '', sg2: entry.active.sg2 ?? '', sg3: '', pl1: '', pl2: entry.active.pl2 ?? '', pl3: '' },
+        }
+      }
+    }
+
+    return parsed
+  } catch {
+    return null
+  }
+}
+
+export { ENRICHABLE_TENSES }
+export type { EnrichableTense }
 
 export async function getNounByEnglish(englishMeaning: string): Promise<Omit<Noun, 'id' | 'created_at'> | null> {
   const client = getAnthropicClient()

@@ -13,13 +13,19 @@ export interface VoiceTable {
 }
 
 export interface ConjugationTable {
-  present: VoiceTable            // imperfective present
-  imperfect?: VoiceTable         // imperfective past
-  future_continuous?: VoiceTable // imperfective future (θα + present)
-  aorist?: VoiceTable            // perfective past
-  future?: VoiceTable            // perfective future (θα + aorist stem)
-  perfect?: VoiceTable
-  imperative?: VoiceTable
+  present: VoiceTable               // imperfective present
+  imperfect?: VoiceTable            // imperfective past
+  future_continuous?: VoiceTable    // imperfective future (θα + present)
+  aorist?: VoiceTable               // perfective past
+  future?: VoiceTable               // perfective future (θα + aorist stem)
+  present_perfect?: VoiceTable      // έχω + verbal adjective
+  pluperfect?: VoiceTable           // είχα + verbal adjective
+  future_perfect?: VoiceTable       // θα έχω + verbal adjective
+  imperative?: VoiceTable           // positive imperative (sg2, pl2)
+  imperative_negative?: VoiceTable  // negative imperative μην + subj. (sg2, pl2)
+  conditional?: VoiceTable          // θα + imperfect stem (I would write)
+  subjunctive_present?: VoiceTable  // να + present stem (imperfective)
+  subjunctive_aorist?: VoiceTable   // να + aorist stem (perfective)
   participle?: { active?: string; passive?: string }
   infinitive?: string
 }

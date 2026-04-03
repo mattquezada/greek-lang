@@ -63,7 +63,7 @@ function VocabDropdown({ onNavigate }: { onNavigate?: () => void }) {
         <ChevronIcon open={open} />
       </button>
       {open && (
-        <div className="glass absolute top-full left-1/2 -translate-x-1/2 mt-3 min-w-[180px] rounded-2xl py-2 z-50">
+        <div className="vocab-dropdown-glass absolute top-full left-1/2 -translate-x-1/2 mt-3 min-w-[180px] rounded-2xl py-2 z-50">
           {vocabLinks.map((link) => (
             <Link
               key={link.href}
@@ -261,7 +261,7 @@ export default function Navbar() {
               <ChevronIcon open={mobileVocabOpen} />
             </button>
             {mobileVocabOpen && (
-              <div className="glass rounded-2xl">
+              <div className="glass absolute rounded-2xl">
                 {vocabLinks.map((link) => (
                   <Link
                     key={link.href}

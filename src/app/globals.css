@@ -20,7 +20,7 @@
   --glass-border-strong: rgba(13, 94, 175, 0.28);
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   --glass-shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.14);
-  --glass-blur: 14px;
+  --glass-blur: 80px;
 
   /* Glows */
   --blue-glow: rgba(13, 94, 175, 0.35);

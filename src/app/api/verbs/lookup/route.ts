@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from '@/lib/supabase/server'
 import { fetchWiktionaryConjugation } from '@/lib/wiktionary/client'
-import { getConjugationFromClaude, getVerbByEnglish } from '@/lib/claude/client'
+import { getConjugationFromClaude, getVerbByEnglish, enrichMissingConjugations, ENRICHABLE_TENSES } from '@/lib/claude/client'
 import type { ConjugationTable } from '@/types/verb'
 
 export async function GET(request: Request) {
@@ -22,7 +22,22 @@ export async function GET(request: Request) {
     .limit(10)
 
   if (exactMatch && exactMatch.length > 0) {
-    return Response.json({ verbs: exactMatch, source: 'database' })
+    // Enrich any verbs missing tenses
+    const enriched = await Promise.all(
+      exactMatch.map(async (verb) => {
+        const missing = ENRICHABLE_TENSES.filter((t) => !verb.conjugations?.[t])
+        if (missing.length === 0) return verb
+        const additions = await enrichMissingConjugations(verb.greek_text, missing)
+        if (!additions) return verb
+        const updatedConjugations = { ...verb.conjugations, ...additions }
+        await supabaseAdmin
+          .from('verbs')
+          .update({ conjugations: updatedConjugations })
+          .eq('id', verb.id)
+        return { ...verb, conjugations: updatedConjugations }
+      })
+    )
+    return Response.json({ verbs: enriched, source: 'database' })
   }
 
   const isGreek = /[\u0370-\u03FF\u1F00-\u1FFF]/.test(query)
