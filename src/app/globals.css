@@ -178,7 +178,7 @@ body {
   }
   /* Opaque navbar glass — used only on the floating pill nav */
   .glass-navbar {
-    background: rgba(240, 248, 255, 0.90);
+    background: rgba(240, 248, 255, 0.88);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid rgba(13, 94, 175, 0.18);
@@ -188,6 +188,32 @@ body {
     background: rgba(8, 14, 28, 0.90);
     border: 1px solid rgba(255, 255, 255, 0.13);
     box-shadow: 0 4px 24px rgba(0, 0, 0, 0.50);
+  }
+
+  /* Vocab dropdown — opaque enough to mask content behind */
+  .vocab-dropdown-glass {
+    background: rgba(240, 248, 255, 0.92);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(13, 94, 175, 0.18);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  }
+  .dark .vocab-dropdown-glass {
+    background: rgba(8, 14, 28, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
+  }
+
+  /* Mobile full-screen menu overlay — iOS-style blur */
+  .mobile-menu-overlay {
+    background: rgba(248, 252, 255, 0.82);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
+  }
+  .dark .mobile-menu-overlay {
+    background: rgba(8, 12, 28, 0.85);
+    backdrop-filter: blur(32px) saturate(180%);
+    -webkit-backdrop-filter: blur(32px) saturate(180%);
   }
 
   /* 3D card hover effect */

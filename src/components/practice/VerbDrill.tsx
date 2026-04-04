@@ -2,53 +2,130 @@
 
 import { useState, useEffect, useRef } from 'react'
 import type { Verb } from '@/types/verb'
+import type { ConjugationTable, PersonTable } from '@/types/verb'
 
 interface Props {
   verbs: Verb[]
 }
 
-const TENSES = [
-  { key: 'present', label: 'Present' },
-  { key: 'imperfect', label: 'Imperfect' },
-  { key: 'aorist', label: 'Aorist' },
-  { key: 'future', label: 'Future' },
-] as const
+const ALL_TENSES: { key: keyof ConjugationTable; label: string }[] = [
+  { key: 'present',             label: 'Present'            },
+  { key: 'imperfect',           label: 'Imperfect'          },
+  { key: 'aorist',              label: 'Simple Past'        },
+  { key: 'present_perfect',     label: 'Present Perfect'    },
+  { key: 'pluperfect',          label: 'Past Perfect'       },
+  { key: 'future_continuous',   label: 'Future Continuous'  },
+  { key: 'future',              label: 'Future'             },
+  { key: 'future_perfect',      label: 'Future Perfect'     },
+  { key: 'conditional',         label: 'Conditional'        },
+  { key: 'subjunctive_present', label: 'Subjunctive'        },
+  { key: 'imperative',          label: 'Imperative'         },
+  { key: 'imperative_negative', label: 'Imperative (neg.)'  },
+]
 
-const PERSONS = [
-  { key: 'sg1', label: '1st singular', greek: 'εγώ' },
-  { key: 'sg2', label: '2nd singular', greek: 'εσύ' },
-  { key: 'sg3', label: '3rd singular', greek: 'αυτός/ή/ό' },
-  { key: 'pl1', label: '1st plural', greek: 'εμείς' },
-  { key: 'pl2', label: '2nd plural', greek: 'εσείς' },
-  { key: 'pl3', label: '3rd plural', greek: 'αυτοί/ές' },
-] as const
+const ALL_PERSONS: { key: keyof PersonTable; label: string }[] = [
+  { key: 'sg1', label: 'I'        },
+  { key: 'sg2', label: 'you'      },
+  { key: 'sg3', label: 'he/she'   },
+  { key: 'pl1', label: 'we'       },
+  { key: 'pl2', label: 'you all'  },
+  { key: 'pl3', label: 'they'     },
+]
 
-type TenseKey = typeof TENSES[number]['key']
-type PersonKey = typeof PERSONS[number]['key']
+const IMPERATIVE_PERSONS: { key: keyof PersonTable; label: string }[] = [
+  { key: 'sg2', label: 'you'     },
+  { key: 'pl2', label: 'you all' },
+]
+
+const IMPERATIVE_KEYS = new Set<keyof ConjugationTable>(['imperative', 'imperative_negative'])
+
+function makeForms(v: string) {
+  const base = v.toLowerCase().replace(/^to\s+/, '').trim()
+  const ing = base.endsWith('ie') ? base.slice(0, -2) + 'ying'
+    : base.endsWith('e') ? base.slice(0, -1) + 'ing'
+    : base + 'ing'
+  const past = base.endsWith('e') ? base + 'd'
+    : base.endsWith('y') && !/[aeiou]/.test(base[base.length - 2] ?? '') ? base.slice(0, -1) + 'ied'
+    : base + 'ed'
+  const cap = base.charAt(0).toUpperCase() + base.slice(1)
+  return { base, ing, past, cap }
+}
+
+function makeEnglishSentence(
+  tense: keyof ConjugationTable,
+  personKey: keyof PersonTable,
+  englishVerb: string,
+): string {
+  const { base, ing, past, cap } = makeForms(englishVerb || 'do it')
+  const pro = ({
+    sg1: 'I', sg2: 'you', sg3: 'he/she', pl1: 'we', pl2: 'you all', pl3: 'they',
+  } as Record<string, string>)[personKey] ?? 'I'
+  const toBe = pro === 'I' ? 'am' : pro === 'he/she' ? 'is' : 'are'
+  const hadPast = (pro === 'I' || pro === 'he/she') ? 'was' : 'were'
+  const hasPp = (pro === 'he/she') ? 'has' : 'have'
+
+  switch (tense) {
+    case 'present':             return `${pro} ${base} / ${pro} ${toBe} ${ing}`
+    case 'imperfect':           return `${pro} ${hadPast} ${ing} / ${pro} used to ${base}`
+    case 'aorist':              return `${pro} ${past}`
+    case 'present_perfect':     return `${pro} ${hasPp} ${past}`
+    case 'pluperfect':          return `${pro} had ${past}`
+    case 'future_continuous':   return `${pro} will be ${ing}`
+    case 'future':              return `${pro} will ${base}`
+    case 'future_perfect':      return `${pro} will have ${past}`
+    case 'conditional':         return `${pro} would ${base}`
+    case 'subjunctive_present': return `that ${pro} ${base} (ongoing — να + present)`
+    case 'subjunctive_aorist':  return `that ${pro} ${base} (completed — να + aorist)`
+    case 'imperative':          return personKey === 'sg2' ? `${cap}! (to one person)` : `${cap}! (to a group)`
+    case 'imperative_negative': return personKey === 'sg2' ? `Don't ${base}! (to one person)` : `Don't ${base}! (to a group)`
+    default:                    return `${pro} ${base}`
+  }
+}
 
 interface Challenge {
   verb: Verb
-  tense: TenseKey
-  person: PersonKey
+  tense: keyof ConjugationTable
+  personKey: keyof PersonTable
   answer: string
+  englishSentence: string
 }
 
 function pickChallenge(verbs: Verb[]): Challenge | null {
   const eligible = verbs.filter((v) => v.conjugations?.present?.active)
-  if (eligible.length === 0) return null
-  const verb = eligible[Math.floor(Math.random() * eligible.length)]
-  const availableTenses = TENSES.filter((t) => verb.conjugations[t.key]?.active)
-  if (availableTenses.length === 0) return null
-  const tense = availableTenses[Math.floor(Math.random() * availableTenses.length)]
-  const person = PERSONS[Math.floor(Math.random() * PERSONS.length)]
-  const answer = verb.conjugations[tense.key]?.active?.[person.key] ?? ''
-  if (!answer) return null
-  return { verb, tense: tense.key, person: person.key, answer }
+  if (!eligible.length) return null
+
+  // Try up to 20 times to find a valid combo
+  for (let i = 0; i < 20; i++) {
+    const verb = eligible[Math.floor(Math.random() * eligible.length)]
+    const availTenses = ALL_TENSES.filter(({ key }) => {
+      const d = verb.conjugations[key] as { active?: PersonTable } | undefined
+      return d?.active && Object.values(d.active).some((v) => v !== '')
+    })
+    if (!availTenses.length) continue
+
+    const tenseDef = availTenses[Math.floor(Math.random() * availTenses.length)]
+    const persons = IMPERATIVE_KEYS.has(tenseDef.key) ? IMPERATIVE_PERSONS : ALL_PERSONS
+    const personDef = persons[Math.floor(Math.random() * persons.length)]
+
+    const voiceTable = verb.conjugations[tenseDef.key] as { active?: PersonTable } | undefined
+    const answer = voiceTable?.active?.[personDef.key] ?? ''
+    if (!answer) continue
+
+    return {
+      verb,
+      tense: tenseDef.key,
+      personKey: personDef.key,
+      answer,
+      englishSentence: makeEnglishSentence(tenseDef.key, personDef.key, verb.english_translation),
+    }
+  }
+  return null
 }
 
 function normalize(s: string) {
   return s.trim().toLowerCase()
-    .replace(/ά/g, 'α').replace(/έ/g, 'ε').replace(/ή/g, 'η').replace(/ί/g, 'ι').replace(/ό/g, 'ο').replace(/ύ/g, 'υ').replace(/ώ/g, 'ω')
+    .replace(/ά/g, 'α').replace(/έ/g, 'ε').replace(/ή/g, 'η').replace(/ί/g, 'ι')
+    .replace(/ό/g, 'ο').replace(/ύ/g, 'υ').replace(/ώ/g, 'ω')
     .replace(/ϊ/g, 'ι').replace(/ϋ/g, 'υ').replace(/ΐ/g, 'ι').replace(/ΰ/g, 'υ')
 }
 
@@ -68,9 +145,7 @@ export default function VerbDrill({ verbs }: Props) {
     setTimeout(() => inputRef.current?.focus(), 50)
   }
 
-  useEffect(() => {
-    if (started) nextChallenge()
-  }, [started])
+  useEffect(() => { if (started) nextChallenge() }, [started]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = () => {
     if (!challenge || !userAnswer.trim()) return
@@ -91,7 +166,7 @@ export default function VerbDrill({ verbs }: Props) {
         <div>
           <h2 className="text-2xl font-bold mb-2 text-gradient-blue">Verb Drill</h2>
           <p className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
-            {verbs.length} verbs loaded · type the conjugated form
+            {verbs.length} verbs · all tenses · type the Greek
           </p>
           <p className="text-xs mt-2" style={{ color: 'var(--muted-foreground)' }}>
             Accent marks are optional — we check the root form.
@@ -116,9 +191,6 @@ export default function VerbDrill({ verbs }: Props) {
     )
   }
 
-  const personData = PERSONS.find((p) => p.key === challenge.person)!
-  const tenseData = TENSES.find((t) => t.key === challenge.tense)!
-
   return (
     <div className="flex flex-col gap-4">
       {/* Score bar */}
@@ -128,43 +200,33 @@ export default function VerbDrill({ verbs }: Props) {
           <span style={{ color: 'var(--muted-foreground)' }}>{score.total - score.correct} missed</span>
         </div>
         {score.streak >= 2 && (
-          <span className="text-sm font-bold text-gradient-gold">
-            🔥 {score.streak} streak
-          </span>
+          <span className="text-sm font-bold text-gradient-gold">🔥 {score.streak} streak</span>
         )}
       </div>
 
       {/* Challenge card */}
       <div className="glass rounded-3xl p-6 animate-fade-up">
-        {/* Verb + tense */}
-        <div className="mb-2">
+        {/* Verb header */}
+        <div className="mb-1 flex flex-wrap items-baseline gap-2">
           <span className="greek-text text-2xl font-bold" style={{ color: '#0D5EAF' }}>
             {challenge.verb.greek_text}
           </span>
           {challenge.verb.english_translation && (
-            <span className="ml-2 text-sm" style={{ color: 'var(--muted-foreground)' }}>
+            <span className="text-sm" style={{ color: 'var(--muted-foreground)' }}>
               ({challenge.verb.english_translation})
             </span>
           )}
         </div>
-        <div className="mb-5 flex gap-2 flex-wrap">
-          <span
-            className="rounded-full px-3 py-0.5 text-xs font-semibold text-white glow-violet"
-            style={{ background: '#7c3aed' }}
-          >
-            {tenseData.label}
-          </span>
-          <span className="glass rounded-full px-3 py-0.5 text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>
-            {personData.label}
-          </span>
-          <span className="glass rounded-full px-3 py-0.5 text-xs font-medium greek-text" style={{ color: 'var(--muted-foreground)' }}>
-            {personData.greek}
-          </span>
-        </div>
 
-        <p className="mb-4 text-base font-medium" style={{ color: 'var(--foreground)' }}>
-          What is the {tenseData.label.toLowerCase()} active form for <strong>{personData.label}</strong>?
-        </p>
+        {/* Natural English prompt */}
+        <div className="mb-5 mt-4 glass-strong rounded-2xl px-4 py-3">
+          <p className="text-xs font-semibold uppercase tracking-wider mb-1" style={{ color: 'var(--muted-foreground)' }}>
+            How would you say…
+          </p>
+          <p className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>
+            &ldquo;{challenge.englishSentence}&rdquo;
+          </p>
+        </div>
 
         {!submitted ? (
           <div className="flex gap-2">
@@ -176,6 +238,8 @@ export default function VerbDrill({ verbs }: Props) {
               onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               placeholder="Type the Greek form…"
               className="input-glass flex-1 rounded-xl px-4 py-3 text-base greek-text"
+              autoComplete="off"
+              autoCorrect="off"
             />
             <button
               onClick={submit}

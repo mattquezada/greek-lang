@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { Suspense } from 'react'
 import VerbSearch from '@/components/verbs/VerbSearch'
 
 export const metadata = {
@@ -6,15 +6,7 @@ export const metadata = {
   description: 'Look up Greek verb conjugations across all tenses and voices',
 }
 
-export default async function VerbsPage() {
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('verbs')
-    .select('*')
-    .order('greek_text')
-    .limit(50)
-  const verbs = data ?? []
-
+export default function VerbsPage() {
   return (
     <main className="min-h-dvh bg-mesh">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6 sm:py-12">
@@ -51,14 +43,9 @@ export default async function VerbsPage() {
           </p>
         </div>
 
-        {/* Count badge */}
-        <div className="mb-6 flex items-center gap-2 animate-fade-up delay-200">
-          <span className="glass rounded-full px-4 py-1.5 text-sm font-medium" style={{ color: 'var(--muted-foreground)' }}>
-            {verbs.length} verbs loaded
-          </span>
-        </div>
-
-        <VerbSearch initialVerbs={verbs} />
+        <Suspense>
+          <VerbSearch />
+        </Suspense>
       </div>
     </main>
   )

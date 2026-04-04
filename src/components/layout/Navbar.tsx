@@ -234,7 +234,7 @@ export default function Navbar() {
 
       {/* Mobile full-screen menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden bg-mesh-dark" style={{ paddingTop: '80px' }}>
+        <div className="mobile-menu-overlay fixed inset-0 z-40 md:hidden" style={{ paddingTop: '80px' }}>
           <div className="flex flex-col px-5 py-4 gap-2 max-h-full overflow-y-auto">
             {mainLinks.map((link) => (
               <Link
@@ -261,7 +261,7 @@ export default function Navbar() {
               <ChevronIcon open={mobileVocabOpen} />
             </button>
             {mobileVocabOpen && (
-              <div className="glass absolute rounded-2xl">
+              <div className="glass rounded-2xl overflow-hidden">
                 {vocabLinks.map((link) => (
                   <Link
                     key={link.href}

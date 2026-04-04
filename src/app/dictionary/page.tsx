@@ -32,8 +32,6 @@ interface DictionaryResult {
   example_translation?: string
 }
 
-const SUGGESTIONS = ['γεια σου', 'σπίτι', 'ωραίος', 'γρήγορα']
-
 export default function DictionaryPage() {
   const [query, setQuery] = useState('')
   const [result, setResult] = useState<DictionaryResult | null>(null)
@@ -184,21 +182,6 @@ export default function DictionaryPage() {
           )
         )}
 
-        {/* Suggestions when empty */}
-        {!hasSearched && (
-          <div className="perspective grid grid-cols-1 sm:grid-cols-2 gap-3 animate-fade-up delay-200">
-            {SUGGESTIONS.map((word) => (
-              <button
-                key={word}
-                onClick={() => search(word)}
-                className="glass rounded-2xl px-5 py-4 text-left card-3d transition-opacity hover:opacity-80"
-              >
-                <span className="text-xs font-medium" style={{ color: 'var(--muted-foreground)' }}>Try: </span>
-                <span className="greek-text text-base font-semibold" style={{ color: '#0D5EAF' }}>{word}</span>
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </main>
   )

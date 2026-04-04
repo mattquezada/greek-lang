@@ -10,36 +10,7 @@ export function useChat(initialSessionId?: string | null) {
   const [isSyncing, setIsSyncing] = useState(false)
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Load the most recent session on first mount (when no session specified)
-  useEffect(() => {
-    if (initialSessionId !== undefined) return // explicit session passed in — skip auto-load
-
-    async function loadLatest() {
-      try {
-        const res = await fetch('/api/chat/sessions')
-        if (!res.ok) return
-        const { sessions } = await res.json()
-        if (!sessions?.length) return
-
-        const latest = sessions[0]
-        if (latest.messageCount === 0) {
-          setSessionId(latest.id)
-          return
-        }
-
-        // Load messages from the latest session
-        const msgRes = await fetch(`/api/chat/sessions/${latest.id}`)
-        if (!msgRes.ok) return
-        const data = await msgRes.json()
-        setSessionId(latest.id)
-        setMessages(Array.isArray(data.messages) ? data.messages : [])
-      } catch {
-        // silently fail — offline or unauthenticated
-      }
-    }
-
-    loadLatest()
-  }, [initialSessionId])
+  // Always start on a blank chat — session is created lazily on first message
 
   // Debounced save to Supabase after messages change
   const scheduleSave = useCallback((msgs: ChatMessage[], sid: string) => {

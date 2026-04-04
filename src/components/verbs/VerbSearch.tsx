@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useSearchParams } from 'next/navigation'
 import type { Verb } from '@/types/verb'
 import ConjugationTable from './ConjugationTable'
 
-interface Props {
-  initialVerbs?: Verb[]
-}
-
-export default function VerbSearch({ initialVerbs = [] }: Props) {
-  const [query, setQuery] = useState('')
+export default function VerbSearch() {
+  const searchParams = useSearchParams()
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '')
   const [results, setResults] = useState<Verb[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [hasSearched, setHasSearched] = useState(false)
@@ -34,7 +32,10 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
         const res = await fetch(`/api/verbs/lookup?q=${encodeURIComponent(query.trim())}`)
         if (res.ok) {
           const data = await res.json()
-          setResults(data.verbs ?? [])
+          const verbs: Verb[] = data.verbs ?? []
+          setResults(verbs)
+          // Auto-open if exactly one result (e.g. coming from dictionary link)
+          if (verbs.length === 1) setSelectedVerb(verbs[0])
         } else {
           setResults([])
         }
@@ -43,14 +44,12 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
       } finally {
         setIsLoading(false)
       }
-    }, 500)
+    }, query === (searchParams.get('q') ?? '') ? 0 : 500) // instant on URL param, debounced on typing
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [query])
-
-  const displayedVerbs = query.trim() ? results : initialVerbs
+  }, [query]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <div>
@@ -88,9 +87,9 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
           </div>
         )}
 
-        {!selectedVerb && displayedVerbs.length > 0 && (
+        {!selectedVerb && results.length > 0 && (
           <div className="perspective flex flex-col gap-2">
-            {displayedVerbs.map((verb) => (
+            {results.map((verb) => (
               <button
                 key={verb.id}
                 onClick={() => setSelectedVerb(verb)}
@@ -144,6 +143,7 @@ export default function VerbSearch({ initialVerbs = [] }: Props) {
               <ConjugationTable
                 conjugations={selectedVerb.conjugations}
                 isIrregular={selectedVerb.is_irregular}
+                englishVerb={selectedVerb.english_translation}
                 exampleSentence={selectedVerb.example_sentence}
                 exampleTranslation={selectedVerb.example_translation}
               />

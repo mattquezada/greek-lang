@@ -45,21 +45,26 @@ interface TenseDef {
   englishDesc: string
 }
 
-const TENSES: TenseDef[] = [
-  { key: 'present',             label: 'Present',                  englishDesc: 'I write / I am writing'           },
-  { key: 'imperfect',           label: 'Imperfect',                englishDesc: 'I was writing / I used to write'   },
-  { key: 'aorist',              label: 'Simple Past',              englishDesc: 'I wrote'                          },
-  { key: 'present_perfect',     label: 'Present Perfect',         englishDesc: 'I have written'                   },
-  { key: 'pluperfect',          label: 'Past Perfect',            englishDesc: 'I had written'                    },
-  { key: 'future_continuous',   label: 'Future Continuous',       englishDesc: 'I will be writing'                },
-  { key: 'future',              label: 'Future',                   englishDesc: 'I will write'                     },
-  { key: 'future_perfect',      label: 'Future Perfect',          englishDesc: 'I will have written'              },
-  { key: 'conditional',         label: 'Conditional',             englishDesc: 'I would write'                    },
-  { key: 'subjunctive_present', label: 'Subjunctive (Present)',   englishDesc: 'that I write / να + present stem' },
-  { key: 'subjunctive_aorist',  label: 'Subjunctive (Aorist)',    englishDesc: 'that I write once / να + aorist stem' },
-  { key: 'imperative',          label: 'Imperative',              englishDesc: 'Write! (affirmative)'             },
-  { key: 'imperative_negative', label: 'Imperative (Negative)',   englishDesc: "Don't write! (negative)"         },
-]
+function buildTenses(englishVerb?: string | null): TenseDef[] {
+  const { base, ing, past, cap } = englishVerb
+    ? makeForms(englishVerb)
+    : { base: '…', ing: '…', past: '…', cap: '…' }
+  return [
+    { key: 'present',             label: 'Present',               englishDesc: `I ${base} / I am ${ing}`          },
+    { key: 'imperfect',           label: 'Imperfect',             englishDesc: `I was ${ing} / I used to ${base}` },
+    { key: 'aorist',              label: 'Simple Past',           englishDesc: `I ${past}`                        },
+    { key: 'present_perfect',     label: 'Present Perfect',       englishDesc: `I have ${past}`                   },
+    { key: 'pluperfect',          label: 'Past Perfect',          englishDesc: `I had ${past}`                    },
+    { key: 'future_continuous',   label: 'Future Continuous',     englishDesc: `I will be ${ing}`                 },
+    { key: 'future',              label: 'Future',                englishDesc: `I will ${base}`                   },
+    { key: 'future_perfect',      label: 'Future Perfect',        englishDesc: `I will have ${past}`              },
+    { key: 'conditional',         label: 'Conditional',           englishDesc: `I would ${base}`                  },
+    { key: 'subjunctive_present', label: 'Subjunctive (Present)', englishDesc: `that I ${base} (να + present)`    },
+    { key: 'subjunctive_aorist',  label: 'Subjunctive (Aorist)',  englishDesc: `that I ${base} once (να + aorist)` },
+    { key: 'imperative',          label: 'Imperative',            englishDesc: `${cap}! (affirmative)`            },
+    { key: 'imperative_negative', label: 'Imperative (Negative)', englishDesc: `Don't ${base}! (negative)`       },
+  ]
+}
 
 function hasValues(table: PersonTable): boolean {
   return Object.values(table).some((v) => v !== '')
@@ -68,12 +73,14 @@ function hasValues(table: PersonTable): boolean {
 export default function ConjugationTable({
   conjugations,
   isIrregular,
+  englishVerb,
   exampleSentence,
   exampleTranslation,
 }: Props) {
   const [voice, setVoice] = useState<'active' | 'passive'>('active')
 
-  const availableTenses = TENSES.filter(({ key }) => conjugations[key as keyof ConjugationTable] != null)
+  const tenses = buildTenses(englishVerb)
+  const availableTenses = tenses.filter(({ key }) => conjugations[key as keyof ConjugationTable] != null)
 
   const hasAnyPassive = availableTenses.some(({ key }) => {
     const data = conjugations[key as keyof ConjugationTable] as VoiceTable | undefined
